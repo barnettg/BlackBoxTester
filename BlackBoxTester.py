@@ -114,15 +114,48 @@ class scriptsTab():
         tree = ttk.Treeview(frame)
         tree.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.BOTH, anchor =Tk.NW)#
 
-        # bottom frame
-        bottomFrame = ttk.Frame(frame, relief="sunken", borderwidth=5)#, width=200, height=100)
-        timeLabel = Tk.Label(bottomFrame, text="Time Estimate: ")
-        timeLabel.grid(row=0,column=0, columnspan = 2,sticky=(Tk.E))
-        self.SaveBtn = Tk.Button(bottomFrame, text="test ")
-        self.SaveBtn.grid(row=0,column=2)
+        # bottom frame---------------------------------------------------------------
+        bottomFrame = ttk.Frame(frame, relief="sunken", borderwidth=5)#
+        frameA = ttk.Frame(bottomFrame, relief="sunken", borderwidth=5)#
+        frameA1 = ttk.Frame(frameA, relief="sunken", borderwidth=5)#
+        frameA2 = ttk.Frame(frameA, relief="sunken", borderwidth=5)#
+        frameA1.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.X, anchor =Tk.NW)
+        frameA2.pack(side=Tk.BOTTOM, expand=Tk.YES, fill=Tk.X, anchor =Tk.SW)
+        frameA.pack(side=Tk.LEFT, expand=Tk.YES, fill=Tk.X, anchor =Tk.NW)
 
-        bottomFrame.pack(side=Tk.BOTTOM, expand=Tk.YES, fill=Tk.X, anchor =Tk.SE)
+        frameB = ttk.Frame(bottomFrame, relief="sunken", borderwidth=5)#
+        frameB.pack(side=Tk.RIGHT)#, expand=Tk.YES, fill=Tk.X, anchor =Tk.SW)
+        #A1
+        self.timeLabel = Tk.Label(frameA1, text="Time Estimate: ")
+        self.timeLabel.pack(side=Tk.LEFT, anchor =Tk.W)
+        #A2
+        self.checkboxVar1 = Tk.IntVar()
+        self.IgnoreCheckbox = Tk.Checkbutton(frameA2, text="Ignore type >", variable=self.checkboxVar1)
+        self.IgnoreCheckbox.pack(side=Tk.LEFT, anchor =Tk.W)
+        self.levelSpin = Tk.Spinbox(frameA2, from_=1, to=10, width=3)
+        self.levelSpin.pack(side=Tk.LEFT, anchor =Tk.W)
+        #B
+        #timeLabel.grid(row=0,column=0, columnspan = 2,sticky=(Tk.E))
+        self.SaveBtn = Tk.Button(frameB, text="Save ")
+        self.SaveBtn.grid(row=0,column=0, padx=5, pady=5,sticky=(Tk.N, Tk.S, Tk.E, Tk.W) )
+        self.LoadBtn = Tk.Button(frameB, text="Load ")
+        self.LoadBtn.grid(row=0,column=1, padx=5, pady=5,sticky=(Tk.N, Tk.S, Tk.E, Tk.W))
+        self.SelectBtn = Tk.Button(frameB, text="Select All ")
+        self.SelectBtn.grid(row=1,column=0, padx=5, pady=5,sticky=(Tk.N, Tk.S, Tk.E, Tk.W))
+        self.ClearBtn = Tk.Button(frameB, text="Clear ")
+        self.ClearBtn.grid(row=1,column=1, padx=5, pady=5,sticky=(Tk.N, Tk.S, Tk.E, Tk.W))
+        self.OpenEditorBtn = Tk.Button(frameB, text="Open Editor ")
+        self.OpenEditorBtn.grid(row=2,column=0, padx=5, pady=5,sticky=(Tk.N, Tk.S, Tk.E, Tk.W))
+        self.OpenTermBtn = Tk.Button(frameB, text="Open Terminal ")
+        self.OpenTermBtn.grid(row=2,column=1, padx=5, pady=5,sticky=(Tk.N, Tk.S, Tk.E, Tk.W))
+        bottomFrame.rowconfigure(0, weight=1)
+        bottomFrame.rowconfigure(1, weight=1)
+        bottomFrame.rowconfigure(2, weight=1)
+        bottomFrame.columnconfigure(0, weight=1)
+        bottomFrame.columnconfigure(0, weight=1)
+        bottomFrame.pack(side=Tk.RIGHT, expand=Tk.YES, fill=Tk.X, anchor =Tk.E)
 
+        # --------------------------------------------------------------------------
 
         #self.But = Tk.Button(frame, text="test ")
         #self.But.pack(side="top")
