@@ -1,2 +1,2 @@
 git add -A
-git commit -m "add commit batch file"
+git commit -m "update to correct file"

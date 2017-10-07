@@ -111,6 +111,9 @@ class scriptsTab():
         #frame.grid(row=0,column=0,sticky=(Tk.N, Tk.S, Tk.E, Tk.W)) #
         #Tk.Grid.columnconfigure(frame, 0, weight=1)
 
+        tree = ttk.Treeview(frame)
+        tree.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.BOTH, anchor =Tk.NW)#
+
         # bottom frame
         bottomFrame = ttk.Frame(frame, relief="sunken", borderwidth=5)#, width=200, height=100)
         timeLabel = Tk.Label(bottomFrame, text="Time Estimate: ")
@@ -118,7 +121,7 @@ class scriptsTab():
         self.SaveBtn = Tk.Button(bottomFrame, text="test ")
         self.SaveBtn.grid(row=0,column=2)
 
-        bottomFrame.pack(side=Tk.BOTTOM, expand=Tk.YES, fill=Tk.X, anchor =Tk.SE)#side="bottom")
+        bottomFrame.pack(side=Tk.BOTTOM, expand=Tk.YES, fill=Tk.X, anchor =Tk.SE)
 
 
         #self.But = Tk.Button(frame, text="test ")
@@ -128,11 +131,22 @@ class scriptsTab():
 
 class portsTab():
     def __init__(self, root):
-        tab = ttk.Frame(root, relief="sunken", borderwidth=1, width=400, height=100)
+        tab = ttk.Frame(root, relief="sunken", borderwidth=1, width=100, height=100)
         frame = Tk.Frame( tab, relief="sunken", borderwidth=1)#, width=200, height=100 )
         frame.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.BOTH)
-        self.But = Tk.Button(frame, text="test ")
-        self.But.pack(side="top")
+
+        topframe = Tk.Frame( frame, relief="sunken", borderwidth=1)#, width=200, height=100 )
+        topframe.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.BOTH)
+
+        self.portAddBtn = Tk.Button(topframe, text="Add Port...")
+        self.portAddBtn.pack(side="left", anchor =Tk.W, padx=5, pady=5)
+
+        self.portDelBtn = Tk.Button(topframe, text="Delete Port")
+        self.portDelBtn.pack(side="right", anchor =Tk.E, padx=5, pady=5)
+
+        ports = Tk.Listbox(frame, width=100, height=100)
+        ports.pack(side=Tk.TOP, expand=Tk.NO, fill=Tk.BOTH, anchor =Tk.NW, padx=5, pady=5)
+
         root.add(tab, text='Com Ports')
         pass
 
