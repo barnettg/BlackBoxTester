@@ -9,7 +9,6 @@ class Model():
         self.ypoint=200
         self.res = None
   
-  
     def calculate(self):
         pass
 
@@ -74,7 +73,7 @@ class CenterPanel():
     def __init__(self, root):
         panedwin = Tk.PanedWindow(root, sashwidth=6, sashrelief=Tk.RAISED, borderwidth =10, handlesize=10, orient=Tk.HORIZONTAL)
         nbLeft = ttk.Notebook(panedwin)
-        scriptsTab(nbLeft)
+        self.scriptstab = scriptsTab(nbLeft)
         portsTab(nbLeft)
         #page1Left = self.page1_left(nbLeft) #ttk.Frame(nbLeft)
         #nbLeft.add(page1Left, text='tab1')
@@ -206,21 +205,19 @@ class Controller():
         self.root = Tk.Tk()
         self.model=Model()
         self.view=View(self.root)
-        #self.view.sidepanel.plotBut.bind("<Button>",self.my_plot)
-        #self.view.sidepanel.clearButton.bind("<Button>",self.clear)
+        self.view.centerPanel.scriptstab.LoadBtn.bind("<Button>",self.scriptSelectionLoadButtonClick)
   
     def run(self):
-        self.root.title("Tkinter MVC example")
+        self.root.title("Black Box Tester")
         self.root.deiconify()
         self.root.mainloop()
          
     def clear(self,event):
         pass
   
-    def my_plot(self,event):
-        pass
-  
- 
+    def scriptSelectionLoadButtonClick(self,event):
+        print("scriptSelectionLoadButtonClick")
+        self.view.centerPanel.scriptstab.timeLabel.config(text ='changed')
  
 if __name__ == '__main__':
     c = Controller()
