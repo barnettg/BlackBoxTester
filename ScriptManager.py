@@ -28,6 +28,12 @@
 #       logs
 #       plugins
 
+# config file format
+# files: { -- script data --}
+# communications: { -- com setup --}
+# misc: { -- email -- }
+# GUI: {-- editor ---}
+
 
 #to do:
 #   docs for each method and class
