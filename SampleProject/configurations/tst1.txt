@@ -1,0 +1,10 @@
+{
+    "files": {
+        "file2": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": true
+        }
+    }
+}

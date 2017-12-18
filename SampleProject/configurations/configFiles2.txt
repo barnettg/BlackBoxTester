@@ -1,0 +1,97 @@
+{
+    "GUI": {},
+    "communications": {},
+    "files": {
+        "scripts\\group1\\TestScript.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group1\\TestScript1.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group1\\TestScript2.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group1\\TestScript3.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group1\\TestScript4.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group2\\TestScript.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group2\\TestScript1.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group2\\TestScript2.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group2\\TestScript3.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group2\\TestScript4.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group3\\TestScript.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group3\\TestScript1.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group3\\TestScript2.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group3\\TestScript3.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        },
+        "scripts\\group3\\TestScript4.py": {
+            "engine": "default",
+            "helper_class": "default",
+            "priority_level": 1,
+            "selected_to_run": "True"
+        }
+    },
+    "misc": {}
+}
