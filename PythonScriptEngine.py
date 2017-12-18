@@ -43,19 +43,25 @@ class PythonScriptEngine:
         if new_script[-3:] == ".py":
             new_script = new_script[:-3]
         print ("new_script:" + new_script)
-
+        print ("Helper class: " + str(helper_class))
+        #passed = False
+        returnDictionary = {}
         passed = False
         message = "Fail: exception error with " + script_name + " -> "
+        returnDictionary['message'] = message
+        self.module = importlib.__import__(new_script, fromlist =['run'])
+        passed , message = self.module.run(helper_class)
         try:
             self.module = importlib.__import__(new_script, fromlist =['run'])
-            passed, message = self.module.run(helper_class)
+            passed , message = self.module.run(helper_class)
 
         except Exception as e:
             message += str(e) + str(sys.exc_info()[0])
+            returnDictionary['message'] = message
 
         sys.path.remove(script_path)
 
-        return passed, message
+        return passed , message
 
 class HelperClass:
     def __init__(self):
