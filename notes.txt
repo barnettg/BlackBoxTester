@@ -1,11 +1,13 @@
 to do:
     remove non-existant files listed by comparing to list of current files.
     ScriptManager/ConfigurationManager test:
-       get current path and rel from there
+       get current path and rel from there                                                      DONE
         generate a config file , read/write file list, read/write other parts, then delete
      don't run script unless selected
      change run methods in test scripts to args kwargs and return a dictionary of passed param
      need to complete ScriptManager-->run_scripts as a thread
+     register observer in ScriptManager to get script run results and other info
+     ScriptManager-->run_scripts -- later to add data from the helper class written from script to be passed to the notify method
 
 17-DEC-2017
     able to pass helper class and run scripts

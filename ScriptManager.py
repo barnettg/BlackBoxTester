@@ -56,7 +56,13 @@ import json
 import os.path
 import ConfigurationManager
 import sys
+import threading
+import logging
 import importlib
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='[%(levelname)s] (%(threadName)-10s) %(message)s',
+                    )
 
 class ScriptManager(object):
     def __init__(self, sys_model):
@@ -65,6 +71,9 @@ class ScriptManager(object):
         self.scripts_dict = {}
         self.system_model = sys_model
         self.configuration = ConfigurationManager.ConfigurationManager()
+        self.ObserverList = []
+        self.script_run_thread  = None
+        self.stop_running_scripts = False
 
     def set_project_path(self, path):
         self.project_path  = path
@@ -147,7 +156,18 @@ class ScriptManager(object):
             del self.scripts_dict['files'][script_name_to_remove]
 
     def run_scripts(self): # needs to be in thread
+        self.script_run_thread = threading.Thread(target = self.run_scripts_thread, name="Run Scripts Thread")
+        self.script_run_thread.start()
+
+
+    def run_scripts_thread(self):
+        # scriptList should only contain scripts selected to run with correct priority
+        # later to add data from the helper class written from script to be passed to the notify method
         for item in self.scriptList:
+            if self.stop_running_scripts:
+                self.stop_running_scripts = False
+                logging.debug("Stopping thread to run scripts")
+                return
             # get engine and helper class:
             engine = self.scripts_dict['files'][item]['engine']
             helper = self.scripts_dict['files'][item]['helper_class']
@@ -155,18 +175,36 @@ class ScriptManager(object):
                 helper = 'HelperClassPy'
             __import__(helper)
             helper_class = getattr(sys.modules[helper], 'HelperClassPy')()
-            if engine == 'default' :
+            if engine == 'default' or engine == 'PythonScriptEngine':
                 import PythonScriptEngine
                 script_engine = PythonScriptEngine.PythonScriptEngine()
                 path, name = os.path.split(item)
                 path = os.path.join(os.sep,self.project_path,path)
                 self.debugging_print("Run Script:")
                 self.debugging_print(path + "  " + name + " with helper: " + helper)
-                passed, message = script_engine.execute_script(path, name, helper_class) # !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                passed, message = script_engine.execute_script(path, name, helper_class) # !!!!!!!!!!!!!!
+                self.notify(passed=passed,message=message, script_name = item)
                 self.debugging_print("passed: " + str(passed))
                 self.debugging_print("message: " + message)
             else:
                 pass
+
+    def killRunScriptThread(self):
+        pass
+        #don't know what to do yet
+        #if self.script_run_thread.isAlive():
+
+
+    def registerObserver(self, obs):
+        self.ObserverList.append(obs)
+
+    def removeObserver(self, obs):
+        if obs in self.ObserverList:
+            self.ObserverList.remove(obs)
+
+    def notify(self, **kwargs):
+        for item in self.ObserverList:
+            item(kwargs)
 
     def run_single_script(self, rel_script_name):
         pass
@@ -255,6 +293,7 @@ class ScriptManager(object):
             print("ScriptManager---"+message)
 
 
+# not used for now !!!
 class ScriptProperties(object):
     def __int__(self):
         self.script_name = ""
@@ -269,6 +308,16 @@ class ModelDummy(object):
 
 
 if __name__ == '__main__':
+    import time
+    logging.basicConfig(level=logging.DEBUG,
+                    format='[%(levelname)s] (%(threadName)-10s) %(message)s',
+                    )
+    logging.debug(" Logging print")
+    def dummyObserver(kwargs):
+        print("dummyObserver Name: " + str(kwargs['script_name']))
+        print("dummyObserver passed: " + str(kwargs['passed']))
+        print("dummyObserver message: " + str(kwargs['message']))
+
     dummy = ModelDummy()
     sm = ScriptManager(dummy)
     print ("python path ----"+sys.executable)
@@ -283,8 +332,16 @@ if __name__ == '__main__':
     sm.read_configuration_file("configFiles3.txt")
     sm.generate_script_list(level=10)
 
+    sm.registerObserver(dummyObserver)
+
     sm.run_scripts()
-    # wait until thread done????????????????????
+    sm.script_run_thread.join()
+    print("second run")
+    sm.run_scripts()
+    sm.stop_running_scripts = True
+    time.sleep(0.5)
+    # wait until thread done
+    sm.script_run_thread.join()
 
 
     print("sm.get_scripts: " + str(sm.get_scripts()))
