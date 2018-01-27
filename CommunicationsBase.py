@@ -17,7 +17,7 @@ class Communications(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def send_data(self):
+    def send_data(self, data):
         pass
 
     @abstractmethod
