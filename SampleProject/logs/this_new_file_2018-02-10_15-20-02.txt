@@ -1,0 +1,2 @@
+2018-02-10 15:20:02.185362 this is a message
+2018-02-10 15:20:02.192866 this is another message
