@@ -30,7 +30,7 @@ class SerialNoProtocol(Communications):
         self.response_ready = False
         self.response = ""
         self.wait_time_ms = 1000 # 1 second
-        self.t = threading.Thread(target=self.read_thread, name="read_thread")
+        self.t = threading.Thread(target=self.read_thread, name="SerialNoProtocol read_thread")
         self.t.start()
 
     def __repr__(self):

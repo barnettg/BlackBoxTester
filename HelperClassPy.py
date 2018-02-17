@@ -6,6 +6,26 @@
 # write_message(message)
 # write_message_log(message)
 
+# C# methods avaialable in HelperClass:
+# string Send(string data) :
+#   Sends data to the serial or network port and
+#   returns a string containing any response
+# void WriteMessage(string data) :
+#   Writes a message to the script terminal
+# DialogResult OpenMessageBox(string title, string message) :
+#   Opens a message box with OK and CANCEL
+# WriteMessageSerialLog(string message) :
+#   Writes a message to the serial log
+# void WriteMessageLog(string message) :
+#   Writes a message to BBTester log
+# void SetUsingPort(string port) :
+#   set the port to use. The port names are in the Ports List
+# void Reconnect() :
+#   reconnect to a port after rebooting
+# void scriptWantsToStopAll() :
+#   Stop running scripts
+# This IronPython script is started with a call to function Run(HelperClass) that
+#   returns a string starting with "PASS" or "FAIL"
 
 class HelperClassPy:
     def __init__(self):

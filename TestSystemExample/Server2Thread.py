@@ -8,7 +8,8 @@ import threading
 import select
  
 TCP_IP = '127.0.0.1'
-TCP_PORT = 23 # telnet
+TCP_PORT = 80 #
+#TCP_PORT = 23 # telnet
 #TCP_PORT = 502 # modbus
 BUFFER_SIZE = 20  # Normally 1024, but we want fast response
  
