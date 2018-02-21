@@ -22,7 +22,7 @@ class NetworkNoProtocol(Communications):
         self.t = None
 
     def __del__(self):
-        print('NetworkNoProtocol -- destructor')
+        self.notify_log('NetworkNoProtocol -- destructor')
         self.run_d_thread = False
         if self.ser is not None:
             self.ser.close()
@@ -47,14 +47,14 @@ class NetworkNoProtocol(Communications):
         self.ser = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # print(dir(self.ser))
         if 'IP' in kwargs:
-            print('found IP')
+            self.notify_log('found IP')
             self.host = kwargs['IP']
         if 'networkPort' in kwargs:
-            print('found networkPort')
+            self.notify_log('found networkPort')
             self.port = kwargs['networkPort']
 
     def read_thread(self):  # need to do
-        print("Start Thread " + str(self.port_id))
+        self.notify_log("Start Thread " + str(self.port_id))
         self.ser.setblocking(0)
         while self.run_d_thread:
             if self.is_open:
@@ -74,11 +74,11 @@ class NetworkNoProtocol(Communications):
                 except OSError:
                     pass
 
-        print("End Thread " + str(self.port_id))
+        self.notify_log("End Thread " + str(self.port_id))
 
     def connect(self):  # need to detect errors
         if self.ser is not None:
-            print('connect: ' + str(self.ser.connect((self.host, self.port))))
+            self.notify_log('connect: ' + str(self.ser.connect((self.host, self.port))))
             self.t = threading.Thread(target=self.read_thread,
                                       name="NetworkNoProtocol read_thread " + str(self.port_id))
             self.t.start()
@@ -106,7 +106,7 @@ class NetworkNoProtocol(Communications):
             self.rec_observers.remove(observ)
 
     def notify_rx(self, data):
-        print("notify_rx -- received data:", data)
+        self.notify_log("notify_rx -- received data: " + data)
         for item in self.rec_observers:
             item(data)
 
@@ -119,11 +119,10 @@ class NetworkNoProtocol(Communications):
 
     def notify_log(self, data):
         for item in self.log_observers:
-            item(data)
+            item("NetworkNoProtocol::" + data)
 
     def get_status(self):
-        # return connection status and port info
-        pass
+        return {"open":self.is_open, "port_id":self.port_id, "IP":self.host, "port":self.port}
 
     def get_available_ports(self):  # not needed for network connection
         avail_list = []
@@ -134,10 +133,15 @@ if __name__ == '__main__':
     def rec_date(data):
         print("rec_data -- " + data)
 
+    def log_rec_message(message):
+        print("log_rec_message -- " + message)
+
     nnp = NetworkNoProtocol(0)
     nnp.register_rx(rec_date)
+    nnp.register_log(log_rec_message)
     nnp.select_port(IP='127.0.0.1', networkPort=80)
     nnp.connect()
+    print(str(nnp.get_status()))
     nnp.send_data("Hello\n")
     time.sleep(2)
     nnp.send_data("World\n")
