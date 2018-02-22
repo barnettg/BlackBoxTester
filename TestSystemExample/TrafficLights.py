@@ -44,6 +44,7 @@ import socket
 import threading
 import select
 import sys
+import os
 
 class IState(object):
     
@@ -327,16 +328,65 @@ class TrafficServer:
                 pass
 
     def decode_data(self, data):
+        line_ending = os.linesep
         stripped_data = data.upper().strip()
         print("rec " + stripped_data)
-        if stripped_data == "CHNG":
+        if stripped_data == "CHANGE":
             print("traffic change ")
             self.trafficMachine.change()
             print("send back OK ")
-            self.conn.send(b'OK\n')
+            self.conn.send(b'OK' + line_ending.encode('utf-8'))
+        elif stripped_data == "?STATE":
+            print("traffic state ")
+            state = self.trafficMachine.state.name
+            print("send back " + state)
+            self.conn.send(state.encode('utf-8') + line_ending.encode('utf-8'))
+        elif stripped_data == "CAREW=1":
+            self.trafficMachine.carwaitingEW = True
+            self.conn.send(b'OK' + line_ending.encode('utf-8'))
+        elif stripped_data == "CAREW=0":
+            self.trafficMachine.carwaitingEW = False
+            self.conn.send(b'OK' + line_ending.encode('utf-8'))
+
+        elif stripped_data == "CARNS=1":
+            self.trafficMachine.carwaitingNS = True
+            self.conn.send(b'OK' + line_ending.encode('utf-8'))
+        elif stripped_data == "CARNS=0":
+            self.trafficMachine.carwaitingNS = False
+            self.conn.send(b'OK' + line_ending.encode('utf-8'))
+
+        elif stripped_data == "TRAIN=1":
+            self.trafficMachine.train_coming = True
+            self.conn.send(b'OK' + line_ending.encode('utf-8'))
+        elif stripped_data == "TRAIN=0":
+            self.trafficMachine.train_coming = False
+            self.conn.send(b'OK' + line_ending.encode('utf-8'))
+
+        elif stripped_data == "ERR=1":
+            self.trafficMachine.error = True
+            self.conn.send(b'OK' + line_ending.encode('utf-8'))
+        elif stripped_data == "ERR=0":
+            self.trafficMachine.error = False
+            self.conn.send(b'OK' + line_ending.encode('utf-8'))
+
+        elif stripped_data == "?MENU":
+            out = ""
+            out += "CAREW=0\t\tCar NOT waiting at EW intersection." + line_ending
+            out += "CAREW=1\t\tCar waiting at EW intersection." + line_ending
+            out += "CARNS=0\t\tCar NOT waiting at EW intersection." + line_ending
+            out += "CARNS=1\t\tCar waiting at NS intersection." + line_ending
+            out += "CHANGE\t\tInitiate a state change." + line_ending
+            out += "ERR=0\t\tNo system error." + line_ending
+            out += "ERR=1\t\tSystem error." + line_ending
+            out += "?STATE\t\tRead the traffic state." + line_ending
+            out += "TRAIN=0\t\tTrain NOT coming." + line_ending
+            out += "TRAIN=1\t\tTrain coming." + line_ending
+
+            out = (out + line_ending).encode('utf-8')
+            self.conn.send(out)
         else:
             print("Don't recognize ")
-            self.conn.send(b'Error , ' + data.encode('utf-8') + b'\n')
+            self.conn.send(b'Error , ' + data.encode('utf-8') + line_ending.encode('utf-8'))
 
 if __name__ == '__main__':
     if False:
