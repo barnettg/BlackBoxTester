@@ -31,7 +31,7 @@ class NetworkNoProtocol(Communications):
         pass
 
     def __str__(self):
-        pass
+        return 'NetworkNoProtocol portID:{} IP:{} Port:{}'.format(self.port_id,self.host,self.port)
 
     def send_data(self, data):  # test if can send nonprintable char
         if self.is_open:
