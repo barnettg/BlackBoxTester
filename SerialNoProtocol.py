@@ -20,16 +20,21 @@ from CommunicationsBase import Communications
 import serial
 import time
 import threading
+import string
 
 class SerialNoProtocol(Communications):
-    def __init__(self):
+    def __init__(self, prt_id):
         super().__init__()
         self.ser = serial.Serial()
+        self.comport = "Not specified"
+        self.baudrate = "Not specified"
+        self.port_id = prt_id
         self.run_d_thread = True
         self.ending = "\r\n"
         self.response_ready = False
         self.response = ""
-        self.wait_time_ms = 1000 # 1 second
+        self.wait_time_ms = 1000 # 4 seconds
+        self.printable = string.ascii_letters + string.digits + string.punctuation + ' '
         self.t = threading.Thread(target=self.read_thread, name="SerialNoProtocol read_thread")
         self.t.start()
 
@@ -37,10 +42,10 @@ class SerialNoProtocol(Communications):
         pass
 
     def __str__(self):
-        pass
+        return 'SerialNoProtocol port ID:{} com port:{} Baud rate:{}'.format(self.port_id, self.comport, self.baudrate)
 
     def send_data(self, data): # test if can send non-printable char
-        return_data = ""
+        return_data = "Error, no data received within timeout from serial com with port ID {}".format(self.port_id)
         self.response_ready = False
         if self.ser.is_open:
             self.ser.write(data.encode('utf-8')+self.ending.encode('utf-8'))
@@ -51,20 +56,29 @@ class SerialNoProtocol(Communications):
                 #if time out then return
                 end = time.clock()
                 if (end-start)*1000 > self.wait_time_ms :
+                    print("SerialNoProtocol send_data :timeout break")
+                    # print("start:{} end:{}".format(start, end))
                     break
                 # check for data
                 if self.response_ready:
+                    # print("SerialNoProtocol ->send_data-> response_ready-> start:{} end:{}  diff: {}".format(start, end, end-start))
                     return_data = self.response
                     self.response_ready = False
                     break
+        else:
+            return_data = "Error, serial com with port ID {} not open".format(self.port_id)
 
         return return_data
+
+    def send_data_async(self, data):
+        self.response_ready = False
+        if self.ser.is_open:
+            self.ser.write(data.encode('utf-8')+self.ending.encode('utf-8'))
 
     def stop_Thread(self):
         self.run_d_thread = False
         self.t.join(2)
-        print("Thread alive: " + str(self.t.is_alive()))
-
+        # print("Thread alive: " + str(self.t.is_alive()))
 
     def set_data_ending(self, end):
         self.ending = end
@@ -84,7 +98,7 @@ class SerialNoProtocol(Communications):
 
     def select_port(self, **kwargs): # kwargs- include info for serial port or network port
         # 'comport' : comx or /dev/ttyx   depending on system
-        # 'baudrate' : '9600'
+        # 'baudrate' : 9600
         # 'IP' : '192.168.1.1'
         # 'networkPort' : '502'
         # 'parity' : none , odd, even
@@ -95,10 +109,18 @@ class SerialNoProtocol(Communications):
             #print(dir(self.ser))
             if 'baudrate' in kwargs:
                 print('found baudrate')
+                self.baudrate = str(kwargs['baudrate'])
                 self.ser.baudrate = kwargs['baudrate']
+            else:
+                self.baudrate = 9600
+                self.ser.baudrate = 9600
+
             if 'comport' in kwargs:
                 print('found comport')
+                self.comport = kwargs['comport']
                 self.ser.port = kwargs['comport']
+            else:
+                return False  # must specify comport
 
             if 'parity' in kwargs:
                 print('found parity')
@@ -110,14 +132,18 @@ class SerialNoProtocol(Communications):
                     self.ser.parity = serial.PARITY_NONE
                 else:
                     pass #error
+            else:
+                self.ser.parity = serial.PARITY_NONE  # default
 
             if 'stop' in kwargs:
                 print('found stop')
                 self.ser.stopbits = kwargs['stop']
+            else:
+                self.ser.stopbits = 1  # default
         except :
             return False
-        return True
 
+        return True
 
     def read_thread(self):
         # set run_d_thread to False to kill thread
@@ -126,23 +152,32 @@ class SerialNoProtocol(Communications):
             if self.ser.is_open:
                 try:
                     dta = self.ser.read() # will timeout every second
-                    print("read_thread: " + str(dta))
-                    #line = self.ser.readline() # read \n terminated line
+                    # print("SerialNoProtocol read_thread: " + str(dta))
+                    # line = self.ser.readline() # read \n terminated line
                     if len(dta) >0 :
-                        accumulated = accumulated + dta
+                        rec = dta.decode()
+                        raw_rec = dta.decode()
+                        accumulated = accumulated + rec
+                        # print("SerialNoProtocol->read_thread Accumulated: "+ accumulated)
                         if self.ending in accumulated:
-                            self.response = accumulated # assume ending at end-- need to verify that??
+                            raw_rec = self.hex_escape(accumulated)
+                            self.response = accumulated.strip() # assume ending at end-- need to verify that??
+                            # print("SerialNoProtocol->read_thread  self.response: " + self.response)
+                            # print("SerialNoProtocol->read_thread  raw_rec: " + raw_rec)
                             accumulated = ""
-                            self.response_ready = False
-                            self.notify_rx (dta)
+                            self.response_ready = True
+                            self.notify_rx(dta)
                 except:
                     pass
-
+    def hex_escape(self, s):
+        return ''.join(c if c in self.printable else r'\x{0:02x}'.format(ord(c)) for c in s)
 
 
     def connect(self):
         if self.ser != None and not self.ser.is_open:
-            self.ser.open()
+            self.ser.open() #
+            # print("Serial port try to open: " + str(self.ser.is_open))
+            return self.ser.is_open
 
     def disconnect(self):
         if self.ser != None and self.ser.is_open:
@@ -175,9 +210,8 @@ class SerialNoProtocol(Communications):
         for item in self.log_observers:
             item(data)
 
-    def get_status(self):
-        # return connection status and port info
-        pass
+    def get_status(self): #
+        return 'SerialNoProtocol port ID:{} com port:{} Baud rate:{}'.format(self.port_id, self.comport, self.ser.baudrate)
 
     def get_available_ports(self):
         # return com port available
@@ -191,7 +225,7 @@ class SerialNoProtocol(Communications):
         return (avail_list)
 
 if __name__ == '__main__':
-    snp = SerialNoProtocol()
+    snp = SerialNoProtocol(0)
     available_ports = snp.get_available_ports()
     print(str(available_ports))
     print('serial.PARITY_EVEN =' + serial.PARITY_EVEN)
@@ -201,7 +235,7 @@ if __name__ == '__main__':
     print('serial.STOPBITS_ONE_POINT_FIVE =' + str(serial.STOPBITS_ONE_POINT_FIVE))
     print('serial.STOPBITS_TWO =' + str(serial.STOPBITS_TWO))
 
-    snp.select_port(baudrate = 19200, comport = available_ports[0])
+    snp.select_port(baudrate=19200, comport=available_ports[0])
     snp.connect()
     snp.send_data("Hello\n")
     snp.disconnect()

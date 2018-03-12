@@ -45,6 +45,8 @@ import threading
 import select
 import sys
 import os
+import serial
+import time
 
 class IState(object):
     
@@ -262,7 +264,7 @@ class TrafficServer:
 
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind(('', self.TCP_PORT))
-        self.s.listen()
+        self.s.listen(5)
         self.s.settimeout(0.2)
         self.count = 0
         self.keep_going = True
@@ -289,12 +291,12 @@ class TrafficServer:
                         self.keep_going = False
                         print("exit " + threading.currentThread().getName())
                         break
-                    #conn.send(data)  # echo
+                    # conn.send(data)  # echo
                     decoded_data = data.decode()
                     accumulated_data += decoded_data
-                    print("accumulated_data: " + accumulated_data)
+                    # print("accumulated_data: " + accumulated_data)
                     if "\n" in decoded_data:
-                        print("found return ")
+                        # print("found return ")
                         self.decode_data(str(accumulated_data))
                         accumulated_data = ""
                 if not self.keep_going:
@@ -388,6 +390,202 @@ class TrafficServer:
             print("Don't recognize ")
             self.conn.send(b'Error , ' + data.encode('utf-8') + line_ending.encode('utf-8'))
 
+
+class TrafficSerial():
+    def __init__(self):
+        super().__init__()
+        self.ser = serial.Serial()
+        self.comport = "Not specified"
+        self.baudrate = "Not specified"
+        self.keep_going = True
+        self.run_d_thread = True
+        self.ending = "\r\n"
+        self.response_ready = False
+        self.response = ""
+        self.wait_time_ms = 1000 # 1 second
+        self.trafficMachine = TrafficMachine()
+        print("TrafficSerial : " + self.trafficMachine.state.name)
+        self.t = threading.Thread(target=self.read_thread, name="SerialNoProtocol read_thread")
+        self.t.start()
+
+    def __repr__(self):
+        pass
+
+    def __str__(self):
+        return 'TrafficSerial com port:{} Baud rate:{}'.format(self.comport, self.baudrate)
+
+    def send_data(self, data): #
+        if self.ser.is_open:
+            self.ser.write(data.encode('utf-8')+self.ending.encode('utf-8'))
+            #self.ser.write(data + self.ending)
+
+    def stop_Thread(self):
+        self.run_d_thread = False
+        self.t.join(2)
+        print("Thread alive: " + str(self.t.is_alive()))
+
+    def select_port(self, **kwargs): # kwargs- include info for serial port or network port
+        # 'comport' : comx or /dev/ttyx   depending on system
+        # 'baudrate' : 9600
+        # 'parity' : none , odd, even
+        # 'stopbits' : 1, 1.5, 2
+
+        try:
+            self.ser.timeout = 1 # timeout in 1 second
+            #print(dir(self.ser))
+            if 'baudrate' in kwargs:
+                print('found baudrate')
+                self.baudrate = str(kwargs['baudrate'])
+                self.ser.baudrate = kwargs['baudrate']
+            else:
+                self.ser.baudrate = 9600
+
+            if 'comport' in kwargs:
+                print('found comport')
+                self.comport = kwargs['comport']
+                self.ser.port = kwargs['comport']
+            else:
+                return False  # must specify comport
+
+            if 'parity' in kwargs:
+                print('found parity')
+                if kwargs['parity'] == 'E':
+                    self.ser.parity = serial.PARITY_EVEN
+                elif kwargs['parity'] == 'O':
+                    self.ser.parity = serial.PARITY_ODD
+                elif kwargs['parity'] == 'N':
+                    self.ser.parity = serial.PARITY_NONE
+                else:
+                    pass #error
+            else:
+                self.ser.parity = serial.PARITY_NONE  # default
+
+            if 'stop' in kwargs:
+                print('found stop')
+                self.ser.stopbits = kwargs['stop']
+            else:
+                self.ser.stopbits = 1  # default
+        except :
+            return False
+
+        return True
+
+    def read_thread(self):
+        # set run_d_thread to False to kill thread
+        accumulated = ""
+        while self.run_d_thread:
+            if self.ser.is_open:
+                try:
+                    dta = self.ser.read() # will timeout every second
+                    # print("read_thread: " + str(dta))
+                    # line = self.ser.readline() # read \n terminated line
+                    # print("data len: " + str(len(dta)))
+                    if dta == b'\x03': # cntrl-c
+                        self.keep_going = False
+                        print("exit " + threading.currentThread().getName())
+                        break
+                    if len(dta) >= 1:
+                        accumulated = accumulated + dta.decode()
+                        # print("accumulated: " + accumulated)
+                        if self.ending in accumulated:
+                            print("Serial read_thread found return ")
+                            self.decode_data(accumulated) # assume ending at end-- need to verify that??
+                            accumulated = ""
+
+                except:
+                    print("exception "+ threading.currentThread().getName())
+                    print("read_thread Unexpected error:", sys.exc_info()[0])
+                    error_type, error_message, error_traceback = sys.exc_info()
+                    print(error_message)
+                    print(error_traceback)
+
+    def connect(self):
+        if self.ser != None and not self.ser.is_open:
+            self.ser.open()
+
+    def disconnect(self):
+        if self.ser != None and self.ser.is_open:
+            self.ser.close()
+
+    def get_available_ports(self):
+        # return com port available
+        import serial.tools.list_ports
+        avail_list = []
+        #print (dir(serial.tools.list_ports.comports()))
+        for port in serial.tools.list_ports.comports():
+            #print(dir(port))
+            #print(str(port.device))
+            avail_list.append(port.device)
+        return (avail_list)
+
+    def decode_data(self, data):
+        time0 = time.clock()
+        # line_ending = os.linesep
+        line_seperation = '\v' # vertical tab
+        stripped_data = data.upper().strip()
+        print("rec " + stripped_data)
+        if stripped_data == "CHANGE":
+            print("traffic change ")
+            self.trafficMachine.change()
+            print("send back OK ")
+            self.send_data('CHANGE OK')
+        elif stripped_data == "?STATE":
+            print("traffic state ")
+            state = self.trafficMachine.state.name
+            print("send back " + state)
+            self.send_data("?STATE "+state )
+        elif stripped_data == "CAREW=1":
+            self.trafficMachine.carwaitingEW = True
+            self.send_data('CAREW=1 OK')
+        elif stripped_data == "CAREW=0":
+            self.trafficMachine.carwaitingEW = False
+            self.send_data('CAREW=0 OK' )
+
+        elif stripped_data == "CARNS=1":
+            self.trafficMachine.carwaitingNS = True
+            self.send_data('CARNS=1 OK')
+        elif stripped_data == "CARNS=0":
+            self.trafficMachine.carwaitingNS = False
+            self.send_data('CARNS=0 OK')
+
+        elif stripped_data == "TRAIN=1":
+            self.trafficMachine.train_coming = True
+            self.send_data('TRAIN=1 OK')
+        elif stripped_data == "TRAIN=0":
+            self.trafficMachine.train_coming = False
+            self.send_data('TRAIN=0 OK')
+
+        elif stripped_data == "ERR=1":
+            self.trafficMachine.error = True
+            self.send_data('ERR=1 OK')
+        elif stripped_data == "ERR=0":
+            self.trafficMachine.error = False
+            self.send_data('ERR=0 OK')
+
+        elif stripped_data == "?MENU":
+            time1 = time.clock()
+            out = "?MENU" + line_seperation
+            out += "CAREW=0\t\tCar NOT waiting at EW intersection." + line_seperation
+            out += "CAREW=1\t\tCar waiting at EW intersection." + line_seperation
+            out += "CARNS=0\t\tCar NOT waiting at EW intersection." + line_seperation
+            out += "CARNS=1\t\tCar waiting at NS intersection." + line_seperation
+            out += "CHANGE\t\tInitiate a state change." + line_seperation
+            out += "ERR=0\t\tNo system error." + line_seperation
+            out += "ERR=1\t\tSystem error." + line_seperation
+            out += "?STATE\t\tRead the traffic state." + line_seperation
+            out += "TRAIN=0\t\tTrain NOT coming." + line_seperation
+            out += "TRAIN=1\t\tTrain coming." + line_seperation
+            time2 = time.clock()
+            self.send_data(out)
+            time3 = time.clock()
+            print("time0: {}".format(time0))
+            print("time1: {}".format(time1))
+            print("time2: {}".format(time2))
+            print("time3: {}".format(time3))
+        else:
+            print("Don't recognize ")
+            self.send_data('Error , ' + data)
+
 if __name__ == '__main__':
     if False:
         trafficMachine = TrafficMachine()
@@ -399,12 +597,23 @@ if __name__ == '__main__':
             #print(str(trafficMachine.state))
             print(trafficMachine.state.name)
 
-    if True:
+    if False:
         TS = TrafficServer()
         print("start server thread")
         TS.start_server()
         while TS.keep_going:
             pass
+
+    if True:
+        TS = TrafficSerial()
+        print("start serial thread")
+        TS.select_port(comport="COM2", baudrate=57600)
+        TS.connect()
+        while TS.keep_going:
+            pass
+        TS.disconnect()
+        TS.run_d_thread = False
+        TS.t.join()
 
     print("Program Done")
 

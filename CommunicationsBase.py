@@ -21,14 +21,11 @@ class Communications(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def send_data_async(self, data):
+        pass
+    @abstractmethod
     def select_port(self, **kwargs): # kwargs- include info for serial port or network port
         pass
-    # 'comport' : comx or ttyx   depending on system
-    # 'baudrate' : '9600'
-    # 'IP' : '192.168.1.1'
-    # 'networkPort' : '502'
-    # 'parity' : none , odd, even
-    # 'stopbits' : 1, 1.5, 2
 
     @abstractmethod
     def connect(self):
@@ -66,6 +63,10 @@ class Communications(metaclass=ABCMeta):
     @abstractmethod
     def get_available_ports(self):
         # return com port available
+        pass
+
+    @abstractmethod
+    def stop_Thread(self):
         pass
 
 if __name__ == '__main__':

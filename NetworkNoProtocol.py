@@ -7,6 +7,7 @@ import socket
 import threading
 import sys
 import time
+import string
 
 
 class NetworkNoProtocol(Communications):
@@ -20,6 +21,11 @@ class NetworkNoProtocol(Communications):
         self.BUFFER_SIZE = 1024
         self.port_id = prt_id
         self.t = None
+        self.ending = "\r\n"
+        self.wait_time_ms = 1000 # 1 second
+        self.response_ready = False
+        self.response = ""
+        self.printable = string.ascii_letters + string.digits + string.punctuation + ' '
 
     def __del__(self):
         self.notify_log('NetworkNoProtocol -- destructor')
@@ -33,9 +39,52 @@ class NetworkNoProtocol(Communications):
     def __str__(self):
         return 'NetworkNoProtocol portID:{} IP:{} Port:{}'.format(self.port_id,self.host,self.port)
 
-    def send_data(self, data):  # test if can send nonprintable char
+    def set_data_ending(self, end):
+        self.ending = end
+
+    def get_data_ending(self):
+        return self.ending
+
+    def clear_rec_buffer(self):
+        self.response_ready = False
+        self.response = ""
+
+    def set_data_wait_ms(self, ms):
+        self.wait_time_ms = ms
+
+    def get_data_wait_ms(self):
+        return self.wait_time_ms
+
+    def send_data(self, data):  # not done !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # test if can send nonprintable char
+        return_data = "Error, no data received within timeout from Ethernet com with port ID {}".format(self.port_id)
+        self.response_ready = False
+        if self.is_open:
+            self.ser.send(data.encode('utf-8') + self.ending.encode('utf-8'))
+            # get time
+            start = time.clock()
+            while True: # loop until timeout or
+                # get time
+                # if time out then return
+                end = time.clock()
+                if (end-start)*1000 > self.wait_time_ms :
+                    break
+                # check for data
+                if self.response_ready:
+                    return_data = self.response
+                    self.response_ready = False
+                    break
+        else:
+            return_data = "Error, Ethernet com with port ID {} not open".format(self.port_id)
+
+        return return_data
+
+    def send_data_async(self, data):
+        # test if can send non printable char
         if self.is_open:
             self.ser.send(data.encode('utf-8'))
+        else:
+            return "Error, port ID {} not open".format(self.port_id)
 
     def select_port(self, **kwargs):  # kwargs- include info for serial port or network port
         # 'comport' : comx or /dev/ttyx   depending on system
@@ -49,18 +98,43 @@ class NetworkNoProtocol(Communications):
         if 'IP' in kwargs:
             self.notify_log('found IP')
             self.host = kwargs['IP']
+        else:
+            return False
         if 'networkPort' in kwargs:
             self.notify_log('found networkPort')
             self.port = kwargs['networkPort']
+        else:
+            return False
+        return True
 
-    def read_thread(self):  # need to do
+    def read_thread(self):  # need to do !!!!!!!!!!check traffic.py for accumulating data line!!!!!!!!!!!!!!!!!!!!!!!!
+        # self.response_ready = False
+        # self.response = ""
         self.notify_log("Start Thread " + str(self.port_id))
         self.ser.setblocking(0)
+        accumulated = ""
         while self.run_d_thread:
             if self.is_open:
                 try:
-                    data = self.ser.recv(self.BUFFER_SIZE)
-                    self.notify_rx(data.decode())
+                    dta = self.ser.recv(self.BUFFER_SIZE)
+                    # print("SerialNoProtocol read_thread: " + str(dta))
+                    # line = self.ser.readline() # read \n terminated line
+                    if len(dta) >0 :
+                        rec = dta.decode()
+                        raw_rec = dta.decode()
+                        accumulated = accumulated + str(rec)
+                        raw_rec = self.hex_escape(accumulated)
+                        #print("NetworkNoProtocol->read_thread Accumulated: " + str(accumulated))
+                        #print("NetworkNoProtocol->read_thread Accumulated Hex: " + str(raw_rec))
+                        if self.ending in accumulated:
+                            #raw_rec = self.hex_escape(accumulated)
+                            self.response = accumulated.strip() # assume ending at end-- need to verify that??
+                            # print("SerialNoProtocol->read_thread  self.response: " + self.response)
+                            # print("SerialNoProtocol->read_thread  raw_rec: " + raw_rec)
+                            accumulated = ""
+                            self.response_ready = True
+                            self.notify_rx (self.response)
+                    #self.notify_rx(data.decode())
                 except TypeError:
                     print("read_thread Unexpected error:", sys.exc_info()[0])
                     error_type, error_message, error_traceback = sys.exc_info()
@@ -75,6 +149,13 @@ class NetworkNoProtocol(Communications):
                     pass
 
         self.notify_log("End Thread " + str(self.port_id))
+
+    def hex_escape(self, s):
+        return ''.join(c if c in self.printable else r'\x{0:02x}'.format(ord(c)) for c in s)
+
+    def stop_Thread(self):
+        self.run_d_thread = False
+        self.t.join(2)
 
     def connect(self):  # need to detect errors
         if self.ser is not None:
@@ -139,7 +220,7 @@ if __name__ == '__main__':
     nnp = NetworkNoProtocol(0)
     nnp.register_rx(rec_date)
     nnp.register_log(log_rec_message)
-    nnp.select_port(IP='127.0.0.1', networkPort=80)
+    nnp.select_port(IP='192.168.1.4', networkPort=23)  # IP='127.0.0.1', networkPort=80)
     nnp.connect()
     print(str(nnp.get_status()))
     nnp.send_data("Hello\n")
