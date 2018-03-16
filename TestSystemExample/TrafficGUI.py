@@ -3,6 +3,8 @@ from tkinter import Label
 from tkinter import Button
 import time
 import socket
+import threading
+import TrafficLights
 
 class TrafficGUI:
     def __init__(self, master):
@@ -19,6 +21,8 @@ class TrafficGUI:
         self.light_error_flag = False
         self.car_waiting_ew_flag = False
         self.car_waiting_ns_flag = False
+
+        self.master .protocol("WM_DELETE_WINDOW", self.on_delete)
 
         self.cv = Canvas(self.master, width = 850, height = 400)
         self.cv.pack()
@@ -51,54 +55,92 @@ class TrafficGUI:
 
         self.create_street()
 
+        self.TS = TrafficLights.TrafficServer()
+
+        self.t = threading.Thread(target=self.TS.start_server(), name="Traffic_thread")
+        self.t.start()
+
+        self.periodic_flag = True
+        self.master.after(1000, self.periodic_update)
+
         #self.close_button = Button(master, text="Close", command=master.quit)
         #self.close_button.pack()
 
+    def on_delete(self):
+        print("bye!")
+        # kill threads
+        self.TS.keep_going = False
+        self.periodic_flag = False
+        del self.t
+        root.destroy()
+
     def change(self):
         print("change!")
-        self.set_lights("red", "red")
+        self.TS.trafficMachine.change()
 
     def train(self):
         print("train!")
         if self.train_coming_flag is False:
+            self.TS.trafficMachine.train_coming = True
             self.cv.itemconfig(self.label_train, text="Train coming!")
             self.train_coming_flag = True
         else:
+            self.TS.trafficMachine.train_coming = False
             self.cv.itemconfig(self.label_train, text="")
             self.train_coming_flag = False
 
     def light_error(self):
         print("error!")
         if self.light_error_flag is False:
+            self.TS.trafficMachine.light_error = True
             self.cv.itemconfig(self.label_error, text="Error!")
             self.light_error_flag = True
         else:
+            self.TS.trafficMachine.light_error = False
             self.cv.itemconfig(self.label_error, text="")
             self.light_error_flag = False
 
     def car_ew(self):
         print("car_ew!")
         if self.car_waiting_ew_flag is False:
+            self.TS.trafficMachine.carwaitingEW = True
             self.cv.itemconfig(self.label_Car_Waiting_EW, text="Car Waiting EW")
             self.car_waiting_ew_flag = True
         else:
+            self.TS.trafficMachine.carwaitingEW = False
             self.cv.itemconfig(self.label_Car_Waiting_EW, text="")
             self.car_waiting_ew_flag = False
 
     def car_ns(self):
         print("car_ns!")
         if self.car_waiting_ns_flag is False:
+            self.TS.trafficMachine.carwaitingNS = True
             self.cv.itemconfig(self.label_Car_Waiting_NS, text="Car Waiting NS")
             self.car_waiting_ns_flag = True
         else:
+            self.TS.trafficMachine.carwaitingNS = False
             self.cv.itemconfig(self.label_Car_Waiting_NS, text="")
             self.car_waiting_ns_flag = False
 
     def set_lights(self, ns, ew):
         # http://infohost.nmt.edu/tcc/help/pubs/tkinter/web/colors.html
         if ns is "red":
-            self.cv.itemconfig(self.id_ns_top, fill="red")  # change color
+            self.signal_ns.set_red(True)
+        elif ns is "yellow":
+            self.signal_ns.set_yellow(True)
+        elif ns is "green":
+            self.signal_ns.set_green(True)
+        else:
+            raise ValueError('Setting NS light incorrect: '+ ns)
 
+        if ew is "red":
+            self.signal_ew.set_red(True)
+        elif ew is "yellow":
+            self.signal_ew.set_yellow(True)
+        elif ew is "green":
+            self.signal_ew.set_green(True)
+        else:
+            raise ValueError('Setting EW light incorrect: ' + ew)
 
     def create_street(self):
         # ns signal
@@ -146,6 +188,30 @@ class TrafficGUI:
 
     def move_signal(self, signal):
         pass
+
+    def periodic_update(self):
+        state = self.TS.trafficMachine.state.name
+        #print(state)
+        if state == "NS Green and EW Red State":
+            self.set_lights("green", "red")
+        elif state == "NS Yellow and EW Red State":
+            self.set_lights("yellow", "red")
+        elif state == "NS Red and EW Red To EW Green State":
+            self.set_lights("red", "red")
+        elif state == "NS Red and EW Green State":
+            self.set_lights("red", "green")
+        elif state == "NS Red and EW Yellow State":
+            self.set_lights("red", "yellow")
+        elif state == "NS Red EW Red To NS Green State":
+            self.set_lights("red", "red")
+        elif state == "NS Red Flash and EW Red Flash State":
+            self.set_lights("red", "red")
+        else:
+            raise ValueError('Unknown State: ' + state)
+
+        if self.periodic_flag == True:
+            self.master.after(1000, self.periodic_update)
+
 
 class Signal:
     def __init__(self, canvas_id):

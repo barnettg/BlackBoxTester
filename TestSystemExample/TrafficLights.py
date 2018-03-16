@@ -70,7 +70,7 @@ class NsGreenEwRedState(IState):
         self.name = "NS Green and EW Red State"
         
     def change( self ):
-        if self.trafic_machine.error:
+        if self.trafic_machine.light_error:
             self.trafic_machine.setState(self.trafic_machine.get_NS_red_Flash_EW_red_Flash_state() )
             return
         if self.trafic_machine.train_coming:
@@ -90,7 +90,7 @@ class NsYellowEwRedState(IState):
         self.name = "NS Yellow and EW Red State"
         
     def change( self ):
-        if self.trafic_machine.error:
+        if self.trafic_machine.light_error:
             self.trafic_machine.setState(self.trafic_machine.get_NS_red_Flash_EW_red_Flash_state() )
             return
         if self.trafic_machine.train_coming:
@@ -111,7 +111,7 @@ class NsRedEwRedToEwGreenState(IState):
         self.name = "NS Red and EW Red To EW Green State"
         
     def change( self ):
-        if self.trafic_machine.error:
+        if self.trafic_machine.light_error:
             self.trafic_machine.setState(self.trafic_machine.get_NS_red_Flash_EW_red_Flash_state() )
             return
         if self.trafic_machine.train_coming:
@@ -131,7 +131,7 @@ class NsRedEwGreenState(IState):
         self.name = "NS Red and EW Green State"
         
     def change( self ):
-        if self.trafic_machine.error:
+        if self.trafic_machine.light_error:
             self.trafic_machine.setState(self.trafic_machine.get_NS_red_Flash_EW_red_Flash_state() )
             return
         if self.trafic_machine.train_coming:
@@ -151,7 +151,7 @@ class NsRedEwYellowState(IState):
         self.name = "NS Red and EW Yellow State"
         
     def change( self ):
-        if self.trafic_machine.error:
+        if self.trafic_machine.light_error:
             self.trafic_machine.setState(self.trafic_machine.get_NS_red_Flash_EW_red_Flash_state() )
             return
         if self.trafic_machine.train_coming:
@@ -171,7 +171,7 @@ class NsRedEwRedToNsGreenState(IState):
         self.name = "NS Red EW Red To NS Green State"
         
     def change( self ):
-        if self.trafic_machine.error:
+        if self.trafic_machine.light_error:
             self.trafic_machine.setState(self.trafic_machine.get_NS_red_Flash_EW_red_Flash_state() )
             return
         if self.trafic_machine.train_coming:
@@ -191,7 +191,7 @@ class NsRedFlashEwRedFlashState(IState):
         self.name = "NS Red Flash and EW Red Flash State"
         
     def change( self ):
-        if self.trafic_machine.error:
+        if self.trafic_machine.light_error:
             self.trafic_machine.setState(self.trafic_machine.get_NS_red_Flash_EW_red_Flash_state() )
             return
         if self.trafic_machine.train_coming:
@@ -209,7 +209,7 @@ class NsRedFlashEwRedFlashState(IState):
 
 class TrafficMachine():
     def __init__(self):
-        self.error = False
+        self.light_error = False
         self.train_coming = False
         self.carwaitingEW = False
         self.carwaitingNS = False
@@ -365,10 +365,10 @@ class TrafficServer:
             self.conn.send(b'OK' + line_ending.encode('utf-8'))
 
         elif stripped_data == "ERR=1":
-            self.trafficMachine.error = True
+            self.trafficMachine.light_error = True
             self.conn.send(b'OK' + line_ending.encode('utf-8'))
         elif stripped_data == "ERR=0":
-            self.trafficMachine.error = False
+            self.trafficMachine.light_error = False
             self.conn.send(b'OK' + line_ending.encode('utf-8'))
 
         elif stripped_data == "?MENU":
@@ -556,10 +556,10 @@ class TrafficSerial():
             self.send_data('TRAIN=0 OK')
 
         elif stripped_data == "ERR=1":
-            self.trafficMachine.error = True
+            self.trafficMachine.light_error = True
             self.send_data('ERR=1 OK')
         elif stripped_data == "ERR=0":
-            self.trafficMachine.error = False
+            self.trafficMachine.light_error = False
             self.send_data('ERR=0 OK')
 
         elif stripped_data == "?MENU":
