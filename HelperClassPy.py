@@ -31,7 +31,14 @@ class HelperClassPy:
     def __init__(self):
         self.log_message_list = []
         self.message_list = []
-        self.communications = None
+        self.communications = None  # pointer to the communications manager
+        self.configuration = None  # pointer to the configuration manager
+        self.logging = None  # pointer to the logging manager
+        self.script = None  # pointer to the script manager
+        self.model = None  # pointer to the model class
+        self.view = None  # pointer to the View class
+        self.controller = None  # pointer to the controller class
+        self.running_as_group = True # script can check if run as single execution or as a group of scripts
 
     def message_register(self, fnction):
         self.message_list.append(fnction)
@@ -58,22 +65,41 @@ class HelperClassPy:
     def send(self, port, data):
         if self.communications is not None:
             return self.communications.send(port, data)
+        return None
 
     def reconnect(self, port):
         if self.communications is not None:
             return self.communications.reconnect(port)
+        return None
+
+    def script_wants_to_stop_all(self, message):
+        if self.script is not None:
+            return self.script.script_ordered_stop(message)
+        return None
 
     def is_async_data_ready(self, port):
         # check if asynchronous data is available
         if self.communications is not None:
             return self.communications.is_data_ready(port)
+        return None
 
     def get_async_data(self, port):
         # get asynchronous data
         if self.communications is not None:
             return self.communications.get_data(port)
+        return None
+
+    def open_message_box(self, **kwargs):  # minimum message = "xxx" -> dialog with OK and Cancel buttons
+        if self.controller is not None:
+            return self.controller.script_messagebox(**kwargs)  # returns depending on kwarg options-> yes,no,ok,cancel
+                                                                # and optional additional textbox entries
+        return None
 
 if __name__ == "__main__":
+    class DummyScripts:
+        def script_ordered_stop(self,message):
+            print("STOP: "+message)
+
     class DummyCommunications:
         def send(self, port, data):
             return "dummy data {} on port {} ".format(str(data), str(port))
@@ -94,7 +120,9 @@ if __name__ == "__main__":
         print(message)
 
     hc = HelperClassPy()
+    print("Cannot send yet: " + hc.send(0, "123"))
     hc.communications = DummyCommunications()
+    hc.script = DummyScripts()
     print(hc.reconnect(0))
     print(hc.send(1, "hello"))
     print(hc.is_async_data_ready(2))
@@ -103,3 +131,4 @@ if __name__ == "__main__":
     hc.log_message_register(dummy_log_message)
     hc.write_message("A message")
     hc.write_message_log("A log message")
+    hc.script_wants_to_stop_all("need to stop")

@@ -1,54 +1,49 @@
 import tkinter as Tk
 from tkinter import ttk
-
- 
-class Model():
- 
-    def __init__(self):
-        self.xpoint=200
-        self.ypoint=200
-        self.res = None
-  
-    def calculate(self):
-        pass
-
  
 class View():
-    def __init__(self, master):
-        content = ttk.Frame(master) # not used
+    def __init__(self):
+
+        self.master = Tk.Tk()
+        content = ttk.Frame(self.master) # not used
 
         # get screen size
-        screen_width = master.winfo_screenwidth()
-        screen_height = master.winfo_screenheight()
+        screen_width = self.master.winfo_screenwidth()
+        screen_height = self.master.winfo_screenheight()
         # set min size to 70%
         frameWidth = int(screen_width * 7 /10)
         frameHeight = int(screen_height * 7 /10)
         
-        master.minsize(width = frameWidth, height = frameHeight)
+        self.master.minsize(width = frameWidth, height = frameHeight)
 
         # place in center of screen
         # calculate position x and y coordinates
         x = (screen_width/2) - (frameWidth/2)
         y = (screen_height/2) - (frameHeight/2)
-        master.geometry('%dx%d+%d+%d' % (frameWidth, frameHeight, x, y))
+        self.master.geometry('%dx%d+%d+%d' % (frameWidth, frameHeight, x, y))
 
         #menubar
-        self.menus = Menus(master)
+        self.menus = Menus(self.master)
 
         # top panel
-        self.topPanel=TopPanel(master)
+        self.topPanel=TopPanel(self.master)
 
         # center tabbed notebooks
-        self.centerPanel=CenterPanel(master)
+        self.centerPanel=CenterPanel(self.master)
 
         # bottom panel
-        self.bottompanel=BottomPanel(master)
+        self.bottompanel=BottomPanel(self.master)
 
-        master.columnconfigure(0, weight=1)
-        master.rowconfigure(0, weight=0)
-        master.rowconfigure(1, weight=1)
-        master.rowconfigure(2, weight=0)
-        print ("grid size " + str(master.grid_size()) )
+        self.master.columnconfigure(0, weight=1)
+        self.master.rowconfigure(0, weight=0)
+        self.master.rowconfigure(1, weight=1)
+        self.master.rowconfigure(2, weight=0)
+        print ("grid size " + str(self.master.grid_size()))
+
+    def run(self):
+        self.master.title("Black Box Tester")
+        self.master.deiconify()
+        self.master.mainloop()
 
 class Menus():
     def __init__(self, root):
@@ -199,26 +194,40 @@ class BottomPanel():
         self.plotBut.pack(side="top",fill=Tk.BOTH)
         self.clearButton = Tk.Button(self.frame2, text="Clear")
         self.clearButton.pack(side="top")#,fill=Tk.BOTH)
-  
-class Controller():
-    def __init__(self):
-        self.root = Tk.Tk()
-        self.model=Model()
-        self.view=View(self.root)
-        self.view.centerPanel.scriptstab.LoadBtn.bind("<Button>",self.scriptSelectionLoadButtonClick)
-  
-    def run(self):
-        self.root.title("Black Box Tester")
-        self.root.deiconify()
-        self.root.mainloop()
-         
-    def clear(self,event):
-        pass
-  
-    def scriptSelectionLoadButtonClick(self,event):
-        print("scriptSelectionLoadButtonClick")
-        self.view.centerPanel.scriptstab.timeLabel.config(text ='changed')
- 
+
 if __name__ == '__main__':
-    c = Controller()
-    c.run()
+    view = View()
+    view.run()
+    print("Done")
+
+
+# class Model():
+#
+#     def __init__(self):
+#         self.xpoint=200
+#         self.ypoint=200
+#         self.res = None
+#
+#     def calculate(self):
+#         pass
+
+
+# class Controller():
+#     def __init__(self):
+#         #self.root = Tk.Tk()
+#         self.model = Model()
+#         self.view = View()#self.root)
+#         self.view.centerPanel.scriptstab.LoadBtn.bind("<Button>",self.scriptSelectionLoadButtonClick)
+#
+#     def run(self):
+#         self.view.run()
+#         #self.root.title("Black Box Tester")
+#         #self.root.deiconify()
+#         #self.root.mainloop()
+#
+#     def clear(self,event):
+#         pass
+#
+#     def scriptSelectionLoadButtonClick(self,event):
+#         print("scriptSelectionLoadButtonClick")
+#         self.view.centerPanel.scriptstab.timeLabel.config(text ='changed')

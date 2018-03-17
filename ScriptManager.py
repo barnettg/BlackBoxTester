@@ -65,18 +65,18 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 
 class ScriptManager(object):
-    def __init__(self, sys_model):
+    def __init__(self):
         self.project_path = ""
         self.scriptList=[]
         self.scripts_dict = {}
-        self.system_model = sys_model
+        #self.system_model = sys_model
         self.configuration = ConfigurationManager.ConfigurationManager()
         self.ObserverList = []
         self.script_run_thread  = None
         self.stop_running_scripts = False
 
     def set_project_path(self, path):
-        self.project_path  = path
+        self.project_path = path
 
     def read_configuration_file(self, config_filename):
         # config file format
@@ -319,7 +319,7 @@ if __name__ == '__main__':
         print("dummyObserver message: " + str(kwargs['message']))
 
     dummy = ModelDummy()
-    sm = ScriptManager(dummy)
+    sm = ScriptManager()  # dummy)
     print ("python path ----"+sys.executable)
     this_script_path = os.path.realpath(__file__)
     this_script_path = os.path.dirname(this_script_path)
