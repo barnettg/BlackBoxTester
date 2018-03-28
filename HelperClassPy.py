@@ -39,6 +39,7 @@ class HelperClassPy:
         self.view = None  # pointer to the View class
         self.controller = None  # pointer to the controller class
         self.running_as_group = True # script can check if run as single execution or as a group of scripts
+        self.project_directory = None # path to project
 
     def message_register(self, fnction):
         self.message_list.append(fnction)

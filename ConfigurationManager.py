@@ -8,7 +8,7 @@ import sys
 # config file format
 # 'files' : { -- script data --
 #       }
-# 'communications' : { -- com setup --
+# 'communications' : { "port0":{"port":"COMx", "baud": 9600}
 #       }
 # 'misc' : { -- email --
 #       }
@@ -66,6 +66,7 @@ class ConfigurationManager(object):
         #if __name__ == '__main__':
         print("ConfigurationManager--" + message)
 
+    # methods replaced by get_config_item and  set_config_item
     # def get_files_config(self):
     #     return self.configuration_content.get('files',default = {})
     #

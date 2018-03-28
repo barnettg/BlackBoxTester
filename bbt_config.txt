@@ -1,0 +1,15 @@
+{
+    "configurations history": [
+        {
+            "config file name": "five_conf",
+            "project path": "five"
+        },
+        {
+            "config file name": "C:\\Users\\glen\\Documents\\TempBBtester\\new_Project\\configurations\\configFiles3.txt",
+            "project path": "C:\\Users\\glen\\Documents\\TempBBtester\\new_Project"
+        }
+    ],
+    "current project": "C:\\Users\\glen\\Documents\\TempBBtester\\new_Project",
+    "current project config": "configFiles3.txt",
+    "history size": 10
+}
