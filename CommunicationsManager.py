@@ -248,12 +248,24 @@ class CommunicationsManager:
         else:
             return None
 
+    def get_available_serial_ports(self):
+        # return com port available
+        import serial.tools.list_ports
+        avail_list = []
+        #print (dir(serial.tools.list_ports.comports()))
+        for port in serial.tools.list_ports.comports():
+            #print(dir(port))
+            #print(str(port.device))
+            avail_list.append(port.device)
+        return (avail_list)
+
 if __name__ == "__main__":
     def print_log(message):
         print(message)
 
     cm = CommunicationsManager()
     cm.register_log(print_log)
+    print("available serial ports: " + str(cm.get_available_serial_ports()))
 
     if True:
         result, mess = cm.connect(con_type="ethernet",

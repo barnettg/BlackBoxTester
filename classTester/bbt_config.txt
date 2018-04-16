@@ -1,0 +1,6 @@
+{
+    "configurations history": [],
+    "current project": null,
+    "current project config": null,
+    "history size": 10
+}

@@ -11,6 +11,11 @@ import sys
 import shutil
 import pprint
 
+# to do:
+# add close project - just undo project configuration and remove
+# #     project/project configuration from current project in BBtester config file
+
+
 class Model():
 
     def __init__(self, cntrlr):
@@ -74,7 +79,8 @@ class Model():
             self.project_configuration = config_name
             self.bbt_configuration_content['current project config'] = self.project_configuration
             self.add_to_history()
-            # do something with new info ?????? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            # send to configuration manager to open
+            self.configuration_manager.read_configuration_file(total_path)
             return True
         return False
 
@@ -103,6 +109,7 @@ class Model():
             if not os.path.exists(p_dir):
                 os.makedirs(p_dir)
             new_path = os.path.join(proj_path, proj_name)
+            self.project_directory = new_path
             # create directory configurations
             conf_dir = os.path.join(new_path, "configurations")
             if not os.path.exists(conf_dir):
@@ -135,10 +142,11 @@ class Model():
                 os.makedirs(userfiles_dir)
 
         else:
-            return "Error", "Path does not exist"
+            return False, "Path does not exist"
 
     def create_new_project_configuration(self, file_name):
-        raise ValueError('create_new_project_configuration not completed')
+        total_file_name = os.path.join(self.project_directory, "configurations", file_name )
+        self.configuration_manager.read_configuration_file(total_file_name)
 
     def copy_existing_project_configuration_to_new_config(self, src_file_name, dst_file_name):
         src = self.project_directory + os.sep + "configurations"+ os.sep + src_file_name
@@ -175,9 +183,25 @@ class Model():
 
     def verify_available_ports(self):
         # get ports used in configuration
+        config_specified_ports = self.configuration_manager.get_communications_port_id_list()
+
         # get available ports
+        avail_serial_ports = self.communications_manager.get_available_serial_ports()
         # verify ports used are available
-        raise ValueError('verify_available_ports not completed')
+        for item in config_specified_ports:
+            port_with_specific_id = self.configuration_manager.get_communications_port_id_info(item)
+            if 'type' in port_with_specific_id:
+                if port_with_specific_id['type']=='serial':
+                    if 'comport' in port_with_specific_id:
+                        com_prt = port_with_specific_id['comport']
+                        if com_prt not in avail_serial_ports:
+                            return False, "Serial port " + com_prt + " not available"
+
+
+        return True , "All project specified serial ports are available"
+
+    def get_available_serial_ports(self):
+        return self.communications_manager.get_available_serial_ports()
 
     def set_helper_project_directory(self):
          self.helper_class.project_directory = self.project_directory
@@ -218,11 +242,20 @@ class Model():
         raise ValueError('register_logging_manager not completed')
 
     # ---------- communications -----------------
-    def register_with_communications_as_observer(self):
-        raise ValueError('register_with_communications_as_observer not completed')
 
-    def set_communications_configurations(self):
-        raise ValueError('set_communications_configurations not completed')
+
+    #----------- project configuration -------
+    def project_configuration_add_serial_port_id(self, identification: str,
+                                                 comport: str,
+                                                 baud: str,
+                                                 parity='none',
+                                                 stop=1 ) -> bool:
+
+        temp_dictionary = {'type':'serial', 'comport': comport, 'baudrate': baud, 'parity': parity, 'stopbits': stop }
+        return self.configuration_manager.add_communications_port_id(identification, temp_dictionary )
+
+    def save_configuration(self):
+        self.configuration_manager.write_configuration_file() # writes default
 
     # ---------- scripts -----------------
     def run_scripts(self):
@@ -263,8 +296,42 @@ class Model():
         raise ValueError('configure_text_notification not completed')
 
     # ---------- results -----------------
-    def register_for_script_observer(self):
-        raise ValueError('register_for_script_observer not completed')
+    def register_for_script_observer(self, method=None):
+        if method:
+            self.script_manager.registerObserver(method)
+        else:
+            self.script_manager.registerObserver(self.scriptManager_message_observer_method)
+
+    def scriptManager_message_observer_method(self, message):
+        print("model->script Manager->log " + message)
+
+    def register_for_helperclass_log_observer(self, method=None):
+        if method:
+            self.helper_class.log_message_register(method)
+        else:
+            self.helper_class.log_message_register(self.helperclass_log_observer_method)
+
+    def helperclass_log_observer_method(self, log):
+        print("model->helperclass->log  " + log)
+
+    def register_for_helperclass_message_observer(self, method=None):
+        if method:
+            self.helper_class.log_message_register(method)
+        else:
+            self.helper_class.log_message_register(self.helperclass_message_observer_method)
+
+    def helperclass_message_observer_method(self, message):
+        print("model->helperclass->message " + message)
+
+    def register_for_communicationsManager_observer(self, method=None):
+        if method:
+            self.communications_manager.register_log(method)
+        else:
+            self.communications_manager.register_log(self.communicationsManager_log_observer_method)
+
+    def communicationsManager_log_observer_method(self, log):
+        print("model->communications Manager->log " + log)
+
 
 
 

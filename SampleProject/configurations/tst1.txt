@@ -1,4 +1,19 @@
 {
+    "GUI": {},
+    "communications": {
+        "ports": {
+            "0": {
+                "IP": "192.168.1.1",
+                "networkPort": "502",
+                "type": "ethernet"
+            },
+            "1": {
+                "baudrate": "57600",
+                "comport": "COM1",
+                "type": "serial"
+            }
+        }
+    },
     "files": {
         "file2": {
             "engine": "default",
@@ -6,5 +21,6 @@
             "priority_level": 1,
             "selected_to_run": true
         }
-    }
+    },
+    "misc": {}
 }

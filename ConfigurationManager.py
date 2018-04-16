@@ -8,7 +8,17 @@ import sys
 # config file format
 # 'files' : { -- script data --
 #       }
-# 'communications' : { "port0":{"port":"COMx", "baud": 9600}
+# 'communications' : { 'ports' :{ 'port_id': {}}
+   # port_id = 0, 1, 2 ...
+        # 'type' : serial or ethernet
+
+        # 'IP' : '192.168.1.1'
+        # 'networkPort' : '502'
+
+        # 'comport' : comx or /dev/ttyx   depending on system
+        # 'baudrate' : '9600'
+        # 'parity' : none , odd, even
+        # 'stopbits' : 1, 1.5, 2
 #       }
 # 'misc' : { -- email --
 #       }
@@ -19,6 +29,10 @@ class ConfigurationManager(object):
     def __init__(self):
         self.configuration_file = None
         self.configuration_content = {}
+        self.configuration_content['files'] = {}
+        self.configuration_content['communications'] = {}
+        self.configuration_content['misc'] = {}
+        self.configuration_content['GUI'] = {}
 
     def set_configuration_file(self, path):
         self.debugging_print("set_configuration_file-path: " + path )
@@ -63,8 +77,8 @@ class ConfigurationManager(object):
 
     def debugging_print(self, message):
         " print out messages during development"
-        #if __name__ == '__main__':
-        print("ConfigurationManager--" + message)
+        if __name__ == '__main__':
+            print("ConfigurationManager--" + message)
 
     # methods replaced by get_config_item and  set_config_item
     # def get_files_config(self):
@@ -102,6 +116,84 @@ class ConfigurationManager(object):
     def get_item_list(self):
         return ['files','communications', 'misc', 'GUI']
 
+    ### vvvvvvvvv   Communications configuration  4/2018  working here begin!!!!!!!!!!!
+    def get_communications_port_id_list(self) -> list:
+        """
+        Get a list of specified ports
+        """
+        if self.configuration_content['communications']["ports"]:
+            prt_dictionary = self.configuration_content['communications']["ports"]
+            # format { port_id0: {}, ... port_idn: {}}
+            return list(prt_dictionary.keys())
+        return None
+
+    def get_communications_port_id_info(self, identification: str) -> dict:
+        """
+        Get the configuration parameters for a specific port
+        :param identification: The port
+        :return: A dictionary of the port parameters
+        """
+        if self.configuration_content['communications']["ports"][identification]:
+            prt_dictionary = self.configuration_content['communications']["ports"][identification]
+            return prt_dictionary
+        return None
+
+    def add_communications_port_id(self, identification: str, data_dictionary: dict) -> bool:
+        """
+        Add port parameters for specified port to the configuration file
+        :param identification: port id
+        :param data_dictionary: dictionary of parameters for the port
+            'type' : serial                 'type' : ethernet
+            'comport' : comx or /dev/ttyx   'IP' : '192.168.1.1'
+            'baudrate' : '9600'             'networkPort' : '502'
+        :return: True if data_dictionary has correct format otherwise False
+        """
+        ## data_dictionary format
+        # 'type' : serial or ethernet
+        # if ethernet:
+        #   'IP' : '192.168.1.1'
+        #   'networkPort' : '502'
+        # if serial:
+        #   'comport' : comx or /dev/ttyx   depending on system
+        #   'baudrate' : '9600'  (optional - default 9600)
+        #   'parity' : none , odd, even (optional - default none )
+        #   'stopbits' : 1, 1.5, 2  (optional - default 1)
+        looks_good = False
+        if "ports" not in self.configuration_content['communications']:
+            self.configuration_content['communications'] = {"ports": {}}
+
+        if data_dictionary["type"]:
+            if data_dictionary["type"] == "serial":
+                if 'comport' in data_dictionary:
+                    looks_good = True
+            elif data_dictionary["type"] == "ethernet":
+                if 'IP' in data_dictionary and 'networkPort'in data_dictionary:
+                    looks_good = True
+        if looks_good:
+            self.configuration_content['communications']["ports"][identification] = data_dictionary
+            return True
+        return False
+
+    def remove_communications_port_id(self, identification) -> bool:
+        """
+        Remove port parameters from the configuration file
+        :param identification: specified port
+        :return: returns True if removed the port
+        """
+        if self.configuration_content['communications']["ports"][id]:
+            self.configuration_content['communications']["ports"].pop(id, None)
+            return True
+        return False
+
+    def clear_communications_ports(self):
+        """
+        Removes all port configurations
+        :return: None
+        """
+        self.configuration_content['communications']["ports"] = {}
+
+    ### ^^^^^^^   Communications configuration  4/2018  working here end!!!!!!!!!!!!
+
 
 if __name__ == '__main__':
     cm = ConfigurationManager()
@@ -116,6 +208,18 @@ if __name__ == '__main__':
 
     item_list = cm.get_item_list()
     print(item_list)
+
+    # files configuration
     cm.set_config_item('files', {"file2":{'engine':'default', 'selected_to_run': True, 'priority_level': 1,'helper_class': 'default'  }})
+    cm.write_configuration_file()
+    cm.read_configuration_file()
+
+    # communications configuration
+    cm.clear_communications_ports()
+    result = cm.add_communications_port_id("0",{'type':'ethernet', 'IP' : '192.168.1.1', 'networkPort' : '502'})
+    print("Adding port 0: "+ str(result))
+    result = cm.add_communications_port_id("1",{'type':'serial', 'comport': 'COM1', 'baudrate': '57600'})
+    print("Adding port 1: "+ str(result))
+
     cm.write_configuration_file()
     cm.read_configuration_file()
