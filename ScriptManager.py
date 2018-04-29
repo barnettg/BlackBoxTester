@@ -65,14 +65,15 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 
 class ScriptManager(object):
-    def __init__(self):
+    def __init__(self, configManager):
         self.project_path = ""
         self.scriptList=[]
-        self.scripts_dict = {}
+        #self.scripts_dict = configManager.configuration_content  # {"GUI": {}, "communications": {}, "files": {}, "misc": {}}
         #self.system_model = sys_model
-        self.configuration = ConfigurationManager.ConfigurationManager()
+        self.configuration = configManager  # ConfigurationManager.ConfigurationManager()
         self.ObserverList = []
-        self.script_run_thread  = None
+        self.logging_observer_list = []
+        self.script_run_thread = None
         self.stop_running_scripts = False
 
     def set_project_path(self, path):
@@ -96,50 +97,50 @@ class ScriptManager(object):
         self.debugging_print("self.configuration: " + str(self.configuration))
         self.configuration.set_configuration_file(dir_path_and_filename)
 
-        self.scripts_dict['files'] = self.configuration.read_configuration_file()['files']
-        self.debugging_print("self.scripts_dict['files']: " + str(self.scripts_dict['files']))
+        # self.scripts_dict_files = self.configuration.read_configuration_file()['files'] <- don't need to do anymore -linked directly to configuration manager
+        self.debugging_print("self.configuration.configuration_content['files']: " + str(self.configuration.configuration_content['files']))
         # get list of all available and compare
         new_total = self.get_script_file_names()
         self.debugging_print("total of files: " + str(new_total))
         for item in new_total:
-            if item not in list(self.scripts_dict['files'].keys()):
+            if item not in list(self.configuration.configuration_content['files'].keys()):
                 writeFlag = True
                 tempDic = {}
                 tempDic['engine'] = 'default'
                 tempDic['selected_to_run'] = 'True'
                 tempDic['priority_level'] = 1
                 tempDic['helper_class'] = 'default'
-                self.scripts_dict['files'][item] = tempDic
+                self.configuration.configuration_content['files'][item] = tempDic
 
-        self.debugging_print("total of configuration files: " + str(self.scripts_dict['files']))
+        self.debugging_print("total of configuration files: " + str(self.configuration.configuration_content['files']))
 
-        for item in self.scripts_dict['files'] :
+        for item in self.configuration.configuration_content['files'] :
             if item not in new_total:
                 writeFlag = True
-                pass #remove the item from self.scripts_dict['files']
+                pass #remove the item from self.scripts_dict_files
 
         if writeFlag == True:
             self.write_configuration_file(config_filename)
 
-        self.debugging_print("Total scripts dictionary")
-        self.debugging_print(str(self.scripts_dict))
+        # self.debugging_print("Total scripts dictionary")
+        # self.debugging_print(str(self.scripts_dict))
 
     def write_configuration_file(self, config_filename):
         #dir_path_and_filename = self.project_path + "\\configurations\\"+config_filename
-        dir_path_and_filename = os.path.join(self.project_path, 'configurations', 'config_filename')
+        dir_path_and_filename = os.path.join(self.project_path, 'configurations', config_filename)
         print('dir_path_and_filename: ' + dir_path_and_filename)
-        self.configuration.write_configuration_file()
+        self.configuration.write_configuration_file(dir_path_and_filename)
         #with open(dir_path_and_filename, 'w') as outfile:
         #    json.dump(self.scripts_dict, outfile, indent=4, sort_keys=True)
 
     def generate_script_list(self, level=10):
         " generate an alphabetized list of scripts enables to run and level enabled"
         self.scriptList=[]
-        keys = self.scripts_dict['files'].keys()
+        keys = self.configuration.configuration_content['files'].keys()
         #keys.sort()
         for item in keys:
-            if self.scripts_dict['files'][item]['selected_to_run'] \
-                    and self.scripts_dict['files'][item]['priority_level'] <= level :
+            if self.configuration.configuration_content['files'][item]['selected_to_run'] \
+                    and self.configuration.configuration_content['files'][item]['priority_level'] <= level :
                 self.scriptList.append(item)
         self.scriptList.sort() # alphabetize
 
@@ -149,11 +150,11 @@ class ScriptManager(object):
         tempDic['selected_to_run'] = 'False'
         tempDic['priority_level'] = 10
         tempDic['helper_class'] = 'default'
-        self.scripts_dict['files'][script_name_to_add] = tempDic
+        self.configuration.configuration_content['files'][script_name_to_add] = tempDic
 
     def remove_script_from_configuration(self, script_name_to_remove):
-        if script_name_to_remove in self.scripts_dict['files']:
-            del self.scripts_dict['files'][script_name_to_remove]
+        if script_name_to_remove in self.configuration.configuration_content['files']:
+            del self.configuration.configuration_content['files'][script_name_to_remove]
 
     def run_scripts(self): # needs to be in thread
         self.script_run_thread = threading.Thread(target = self.run_scripts_thread, name="Run Scripts Thread")
@@ -169,8 +170,8 @@ class ScriptManager(object):
                 logging.debug("Stopping thread to run scripts")
                 return
             # get engine and helper class:
-            engine = self.scripts_dict['files'][item]['engine']
-            helper = self.scripts_dict['files'][item]['helper_class']
+            engine = self.configuration.configuration_content['files'][item]['engine']
+            helper = self.configuration.configuration_content['files'][item]['helper_class']
             if helper == 'default':
                 helper = 'HelperClassPy'
             __import__(helper)
@@ -210,52 +211,66 @@ class ScriptManager(object):
         pass
 
     def set_script_engine(self, rel_script_name, script_engine_relative_path_and_name):
-        if rel_script_name in self.scripts_dict['files']:
-            self.scripts_dict['files'][rel_script_name]['engine'] = script_engine_relative_path_and_name
+        self.logging_message("set_script_engine: "+ rel_script_name + "  " + script_engine_relative_path_and_name)
+        self.logging_message(str(self.configuration.configuration_content['files']))
+        if rel_script_name in self.configuration.configuration_content['files']:
+            self.logging_message("match")
+            self.configuration.configuration_content['files'][rel_script_name]['engine'] = script_engine_relative_path_and_name
             return True
         return False
 
     def set_script_helper(self, rel_script_name, helper_relative_path_and_name):
-        if rel_script_name in self.scripts_dict['files']:
-            self.scripts_dict['files'][rel_script_name]['helper_class'] = helper_relative_path_and_name
+        self.logging_message("set_script_helper: "+ rel_script_name + "  " + helper_relative_path_and_name)
+        self.logging_message(str(self.configuration.configuration_content['files']))
+        if rel_script_name in self.configuration.configuration_content['files']:
+            self.logging_message("match")
+            self.configuration.configuration_content['files'][rel_script_name]['helper_class'] = helper_relative_path_and_name
             return True
         return False
 
     def set_script_priority(self, rel_script_name, level):
-        if rel_script_name in self.scripts_dict['files']:
-            self.scripts_dict['files'][rel_script_name]['priority_level'] = level
+        self.logging_message("set_script_priority: "+ rel_script_name + "  " + str(level))
+        self.logging_message(str(self.configuration.configuration_content['files']))
+        if rel_script_name in self.configuration.configuration_content['files']:
+            self.logging_message("match")
+            self.configuration.configuration_content['files'][rel_script_name]['priority_level'] = level
             return True
         return False
 
     def set_script_selection(self, rel_script_name, selection):
-        if rel_script_name in self.scripts_dict['files']:
-            self.scripts_dict['files'][rel_script_name]['selected_to_run'] = selection
+        self.logging_message("set_script_selection: "+ rel_script_name + "  " + str(selection))
+        self.logging_message(str(self.configuration.configuration_content))
+        self.logging_message("config manager content: ")
+        self.logging_message(str(self.configuration.configuration_content))
+        if rel_script_name in self.configuration.configuration_content['files']:
+            self.logging_message("match")
+            self.configuration.configuration_content['files'][rel_script_name]['selected_to_run'] = selection
             return True
         return False
 
     def get_script_engine(self, rel_script_name):
-        if rel_script_name in self.scripts_dict['files']:
-            return self.scripts_dict['files'][rel_script_name]['engine']
+        if rel_script_name in self.configuration.configuration_content['files']:
+            return self.configuration.configuration_content['files'][rel_script_name]['engine']
         return None
 
     def get_script_helper(self, rel_script_name):
-        if rel_script_name in self.scripts_dict['files']:
-            return self.scripts_dict['files'][rel_script_name]['helper_class']
+        if rel_script_name in self.configuration.configuration_content['files']:
+            return self.configuration.configuration_content['files'][rel_script_name]['helper_class']
         return None
 
     def get_script_priority(self, rel_script_name):
-        if rel_script_name in self.scripts_dict['files']:
-            return self.scripts_dict['files'][rel_script_name]['priority_level']
+        if rel_script_name in self.configuration.configuration_content['files']:
+            return self.configuration.configuration_content['files'][rel_script_name]['priority_level']
         return None
 
     def get_script_selection(self, rel_script_name):
-        if rel_script_name in self.scripts_dict['files']:
-            return self.scripts_dict['files'][rel_script_name]['selected_to_run']
+        if rel_script_name in self.configuration.configuration_content['files']:
+            return self.configuration.configuration_content['files'][rel_script_name]['selected_to_run']
         return None
 
     def get_scripts(self):
         "return an alphabetized list of available scripts"
-        keys = list(self.scripts_dict['files'].keys())
+        keys = list(self.configuration.configuration_content['files'].keys())
         keys.sort()
         self.debugging_print("get_scripts----" + str(keys))
         return keys
@@ -292,6 +307,28 @@ class ScriptManager(object):
         if __name__ == '__main__':
             print("ScriptManager---"+message)
 
+    def create_new_script(self, group_name, file_name, contents):
+        file_path = os.path.join(self.project_path, 'scripts', group_name)
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+
+        file_path_and_name = os.path.join(file_path, file_name )
+        with open(file_path_and_name, 'w') as outfile:
+            outfile.write(contents)
+
+
+    # logging
+    def register_log(self, obs):
+        self.logging_observer_list.append(obs)
+
+    def unsubscrib_log(self, obs):
+        if obs in self.logging_observer_list:
+            self.logging_observer_list.remove(obs)
+
+    def logging_message(self, message):
+        for item in self.logging_observer_list:
+            item("ScriptManager log-> "+message)
+
 
 # not used for now !!!
 class ScriptProperties(object):
@@ -319,7 +356,7 @@ if __name__ == '__main__':
         print("dummyObserver message: " + str(kwargs['message']))
 
     dummy = ModelDummy()
-    sm = ScriptManager()  # dummy)
+    sm = ScriptManager(ConfigurationManager.ConfigurationManager())  # dummy)
     print ("python path ----"+sys.executable)
     this_script_path = os.path.realpath(__file__)
     this_script_path = os.path.dirname(this_script_path)

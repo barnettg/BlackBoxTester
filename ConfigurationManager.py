@@ -28,11 +28,18 @@ import sys
 class ConfigurationManager(object):
     def __init__(self):
         self.configuration_file = None
-        self.configuration_content = {}
-        self.configuration_content['files'] = {}
-        self.configuration_content['communications'] = {}
-        self.configuration_content['misc'] = {}
-        self.configuration_content['GUI'] = {}
+        self._configuration_content = {}
+        self._configuration_content['files'] = {}
+        self._configuration_content['communications'] = {}
+        self._configuration_content['misc'] = {}
+        self._configuration_content['GUI'] = {}
+        self.ObserverList = []
+
+    def get_configuration_content(self):
+        return self._configuration_content
+
+    def set_configuration_content(self, value):
+        self._configuration_content = value
 
     def set_configuration_file(self, path):
         self.debugging_print("set_configuration_file-path: " + path )
@@ -67,8 +74,13 @@ class ConfigurationManager(object):
         return self.configuration_content
 
     def write_configuration_file(self, config_filename = None):
+        #self.logging_message("write_configuration_file " + str(config_filename))
+
         if config_filename == None :
             config_filename = self.configuration_file
+
+        self.logging_message("write_configuration_file " + str(config_filename))
+        self.logging_message("content: " + str(self.configuration_content))
 
         dir_path_and_filename = config_filename #project_path + "\\configurations\\"+config_filename
         self.debugging_print('dir_path_and_filename: ' + dir_path_and_filename)
@@ -185,6 +197,17 @@ class ConfigurationManager(object):
             return True
         return False
 
+    def register_log(self, obs):
+        self.ObserverList.append(obs)
+
+    def unsubscribe_log(self, obs):
+        if obs in self.ObserverList:
+            self.ObserverList.remove(obs)
+
+    def logging_message(self, message):
+        for item in self.ObserverList:
+            item("ConfigurationManager log-> "+message)
+
     def clear_communications_ports(self):
         """
         Removes all port configurations
@@ -193,7 +216,7 @@ class ConfigurationManager(object):
         self.configuration_content['communications']["ports"] = {}
 
     ### ^^^^^^^   Communications configuration  4/2018  working here end!!!!!!!!!!!!
-
+    configuration_content = property(get_configuration_content, set_configuration_content)
 
 if __name__ == '__main__':
     cm = ConfigurationManager()

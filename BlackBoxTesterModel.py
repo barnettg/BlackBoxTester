@@ -20,9 +20,9 @@ class Model():
 
     def __init__(self, cntrlr):
         self.controller = cntrlr
-        self.script_manager = ScriptManager.ScriptManager()
         self.helper_class = HelperClassPy.HelperClassPy()
         self.configuration_manager = ConfigurationManager.ConfigurationManager()
+        self.script_manager = ScriptManager.ScriptManager(self.configuration_manager)
         self.logging_manager = LogManager.LogManager()
         self.communications_manager = CommunicationsManager.CommunicationsManager()
 
@@ -60,6 +60,7 @@ class Model():
                 self.bbt_configuration_content['current project'] = self.project_directory
                 self.set_helper_project_directory()
                 # do something to manager classes ?????? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                self.script_manager.set_project_path(self.project_directory)
                 return True
         return False
 
@@ -140,12 +141,16 @@ class Model():
             if not os.path.exists(userfiles_dir):
                 print("make dir " + userfiles_dir)
                 os.makedirs(userfiles_dir)
+            # set up managers for a new project !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.set_helper_project_directory()
+            self.script_manager.set_project_path(self.project_directory)
 
         else:
             return False, "Path does not exist"
 
     def create_new_project_configuration(self, file_name):
         total_file_name = os.path.join(self.project_directory, "configurations", file_name )
+        self.configuration_manager.set_configuration_file(total_file_name)
         self.configuration_manager.read_configuration_file(total_file_name)
 
     def copy_existing_project_configuration_to_new_config(self, src_file_name, dst_file_name):
@@ -255,9 +260,12 @@ class Model():
         return self.configuration_manager.add_communications_port_id(identification, temp_dictionary )
 
     def save_configuration(self):
-        self.configuration_manager.write_configuration_file() # writes default
+        self.configuration_manager.write_configuration_file()  # writes default
 
     # ---------- scripts -----------------
+    def create_new_script(self, group_name, file_name, contents):
+        self.script_manager.set_project_path(self.project_directory)
+        self.script_manager.create_new_script(group_name, file_name, contents)
     def run_scripts(self):
         raise ValueError('run_scripts not completed')
 
@@ -285,8 +293,18 @@ class Model():
     def get_script_running_time_max(self):
         raise ValueError('get_script_running_time_max not completed')
 
-    def set_script_configurations(self):
-        raise ValueError('set_script_configurations not completed')
+    def set_script_configurations(self, rel_script_name, **kwargs):
+        if 'engine' in kwargs:
+            self.script_manager.set_script_engine(rel_script_name, kwargs['engine'])
+        if 'helper_class' in kwargs:
+            self.script_manager.set_script_helper(rel_script_name, kwargs['helper_class'])
+        if 'priority_level' in kwargs:
+            self.script_manager.set_script_priority(rel_script_name, kwargs['priority_level'])
+        if 'selected_to_run' in kwargs:
+            self.script_manager.set_script_selection(rel_script_name, kwargs['selected_to_run'])
+
+    def add_script_to_configuration(self, script_name_to_add):
+        self.script_manager.add_script_to_configuration(script_name_to_add)
 
     # ---------- notifications -----------------
     def configure_email_notification(self):
@@ -302,7 +320,16 @@ class Model():
         else:
             self.script_manager.registerObserver(self.scriptManager_message_observer_method)
 
-    def scriptManager_message_observer_method(self, message):
+    def register_for_script_log(self, method=None):
+        if method:
+            self.script_manager.register_log(method)
+        else:
+            self.script_manager.register_log(self.scriptManager_log_observer_method)
+
+    def scriptManager_message_observer_method(self, **kwargs):
+        print("model->script Manager->notify " + str(kwargs))
+
+    def scriptManager_log_observer_method(self, message):
         print("model->script Manager->log " + message)
 
     def register_for_helperclass_log_observer(self, method=None):
@@ -329,9 +356,18 @@ class Model():
         else:
             self.communications_manager.register_log(self.communicationsManager_log_observer_method)
 
+    def register_for_configurationManager_observer(self, method=None):
+        if method:
+            self.configuration_manager.register_log(method)
+        else:
+            self.configuration_manager.register_log(self.configurationManager_log_observer_method)
+
+
     def communicationsManager_log_observer_method(self, log):
         print("model->communications Manager->log " + log)
 
+    def configurationManager_log_observer_method(self, log):
+        print("model->configuration Manager->log " + log)
 
 
 
