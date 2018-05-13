@@ -8,8 +8,8 @@ class ControllerDummy(object):
     def communManager_obsrv(self, message):
         print("ControllerDummy->communManager_obsrv-> "+ message)
 
-    def scriptManager_obsrv(self, message):
-        print("ControllerDummy->scriptManager_obsrv-> "+ message)
+    def scriptManager_obsrv(self, **kwargs):
+        print("ControllerDummy->scriptManager_obsrv-> "+ str(kwargs))
 
     def scriptManager_obsrv_log(self, message):
         print("ControllerDummy->scriptManager_obsrv_log-> "+ message)
@@ -49,7 +49,8 @@ model.register_for_helperclass_message_observer()
 model.register_for_helperclass_message_observer(cd.helperClass_mess_obsrv)
 
 # open a new project
-model.create_new_project('c:\\', 'temporaryTestDirectory')
+#model.create_new_project('c:\\', 'temporaryTestDirectory')
+model.create_new_project('c:\\Users\\glen\\Documents\\', 'temporaryTestDirectory')
 model.create_new_project_configuration('config_temp_1.txt')  # sets default project configuration to be uses when saving
 
 # save bbt configuration
@@ -60,8 +61,8 @@ print("set comports and open -------")
 ser_avail_list = model.get_available_serial_ports()
 print(str(ser_avail_list))
 # select first com port
-ser_prt = ser_avail_list[0]
-model.project_configuration_add_serial_port_id("0", comport=ser_prt, baud='9600')
+ser_prt = ser_avail_list[1]
+model.project_configuration_add_serial_port_id("0", comport=ser_prt, baud='57600')
 
 # save configuration
 print("save configuration -------")
@@ -81,7 +82,7 @@ model.create_new_script("group1","firstScript.py", contents)
 
 # script run configuration
 print("set script configuration -------")
-script_name = "group1\\firstScript.py"
+script_name = "scripts\\group1\\firstScript.py"
 model.add_script_to_configuration(script_name)
 model.set_script_configurations(script_name, selected_to_run="True", priority_level=1)
 
@@ -90,10 +91,17 @@ print("save configuration -------")
 model.save_configuration() # default config file should be used
 
 # run scripts
+# open application using serial ports
+com_string = ser_avail_list[0]
+# ------ print "Open a test system program using " + com_string
+# wait for <cr>
+resp = input("Open a system to test on " + com_string + "  at 57600 baud")
+
+model.run_scripts(10)# run down to level 10
 
 # close project
 
-# try to run things
+# try to run things with a closed project -- not crash
 
 # open project
 

@@ -1,4 +1,9 @@
 to do:
+    Verify observers work in each module they are used.
+    remove the debug print and change to observers and/or python logging
+    complete rest of model_test1.py to test ethernet and running on closed project, and logging to file.
+    Add versions to main files and BlackBoxTesterModel - use to verify project file structure
+    Add version to project file structure -- ver.txt?
     remove non-existant files listed by comparing to list of current files.
     ScriptManager/ConfigurationManager test:
        get current path and rel from there                                                      DONE
@@ -8,6 +13,9 @@ to do:
      need to complete ScriptManager-->run_scripts as a thread
      register observer in ScriptManager to get script run results and other info
      ScriptManager-->run_scripts -- later to add data from the helper class written from script to be passed to the notify method
+
+18-MAY-2018
+    Able to run a script test on TrafficLights using serial port with model_test1
 
 17-DEC-2017
     able to pass helper class and run scripts

@@ -157,13 +157,16 @@ class ScriptManager(object):
             del self.configuration.configuration_content['files'][script_name_to_remove]
 
     def run_scripts(self): # needs to be in thread
+        print("scriptManager ->run script")
         self.script_run_thread = threading.Thread(target = self.run_scripts_thread, name="Run Scripts Thread")
         self.script_run_thread.start()
 
 
     def run_scripts_thread(self):
+        print("scriptManager -> thread ")
         # scriptList should only contain scripts selected to run with correct priority
         # later to add data from the helper class written from script to be passed to the notify method
+        print("script list: "+ str(self.scriptList))
         for item in self.scriptList:
             if self.stop_running_scripts:
                 self.stop_running_scripts = False
@@ -184,7 +187,7 @@ class ScriptManager(object):
                 self.debugging_print("Run Script:")
                 self.debugging_print(path + "  " + name + " with helper: " + helper)
                 passed, message = script_engine.execute_script(path, name, helper_class) # !!!!!!!!!!!!!!
-                self.notify(passed=passed,message=message, script_name = item)
+                self.notify(passed=passed, message=message, script_name = item)
                 self.debugging_print("passed: " + str(passed))
                 self.debugging_print("message: " + message)
             else:
@@ -205,7 +208,7 @@ class ScriptManager(object):
 
     def notify(self, **kwargs):
         for item in self.ObserverList:
-            item(kwargs)
+            item(**kwargs)
 
     def run_single_script(self, rel_script_name):
         pass
@@ -304,8 +307,9 @@ class ScriptManager(object):
 
     def debugging_print(self, message):
         " print out messages during development"
-        if __name__ == '__main__':
-            print("ScriptManager---"+message)
+        #if __name__ == '__main__':
+            #print("ScriptManager---"+message)
+        print("ScriptManager---"+message)
 
     def create_new_script(self, group_name, file_name, contents):
         file_path = os.path.join(self.project_path, 'scripts', group_name)
@@ -340,17 +344,16 @@ class ScriptProperties(object):
         self.script_selected = False
         self.script_helper_class = "default"
 
-class ModelDummy(object):
-    pass
-
-
 if __name__ == '__main__':
+    class ModelDummy(object):
+        pass
+
     import time
     logging.basicConfig(level=logging.DEBUG,
                     format='[%(levelname)s] (%(threadName)-10s) %(message)s',
                     )
     logging.debug(" Logging print")
-    def dummyObserver(kwargs):
+    def dummyObserver(**kwargs):
         print("dummyObserver Name: " + str(kwargs['script_name']))
         print("dummyObserver passed: " + str(kwargs['passed']))
         print("dummyObserver message: " + str(kwargs['message']))

@@ -441,7 +441,7 @@ class TrafficSerial():
                 self.ser.baudrate = 9600
 
             if 'comport' in kwargs:
-                print('found comport')
+                print('found comport '+ kwargs['comport'])
                 self.comport = kwargs['comport']
                 self.ser.port = kwargs['comport']
             else:
@@ -587,7 +587,34 @@ class TrafficSerial():
             self.send_data('Error , ' + data)
 
 if __name__ == '__main__':
-    if False:
+    resp = input("Enter: select (S)erial or (E)thernet: ")
+
+    if resp == "S" or resp == "s" :
+        print("serial selected")
+        com_port = input("Enter: Com port (COM1, COM2, etc.): ")
+        com_port = com_port.upper()
+        TS = TrafficSerial()
+        print("start serial thread")
+        TS.select_port(comport=com_port, baudrate=57600)
+        TS.connect()
+        while TS.keep_going:
+            pass
+        TS.disconnect()
+        TS.run_d_thread = False
+        TS.t.join()
+
+    elif resp == "E" or resp == "e" :
+        print("Ethernet selected")
+        TS = TrafficServer()
+        print("start server thread")
+        TS.start_server()
+        while TS.keep_going:
+            pass
+
+    else:
+       print("Nothing selected")
+
+    if False: # simple test
         trafficMachine = TrafficMachine()
         print(trafficMachine.state.name)
 
@@ -597,17 +624,22 @@ if __name__ == '__main__':
             #print(str(trafficMachine.state))
             print(trafficMachine.state.name)
 
-    if False:
+    if False: #network connection
         TS = TrafficServer()
         print("start server thread")
         TS.start_server()
         while TS.keep_going:
             pass
 
-    if True:
+    if False:#serial connection
+        print(len(sys.argv))
+        print("The arguments are: ", str(sys.argv))
+        com_port = "COM1"
+        if(len(sys.argv) == 2):
+            com_port=sys.argv[1]
         TS = TrafficSerial()
         print("start serial thread")
-        TS.select_port(comport="COM2", baudrate=57600)
+        TS.select_port(comport=com_port, baudrate=57600)
         TS.connect()
         while TS.keep_going:
             pass

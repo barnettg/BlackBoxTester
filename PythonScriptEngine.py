@@ -49,10 +49,11 @@ class PythonScriptEngine:
         passed = False
         message = "Fail: exception error with " + script_name + " -> "
         returnDictionary['message'] = message
-        self.module = importlib.__import__(new_script, fromlist =['run'])
+        #self.module = importlib.__import__(new_script, fromlist =['run'])
         #passed , message = self.module.run(helper_class)
         try:
-            self.module = importlib.__import__(new_script, fromlist =['run'])
+            #self.module = importlib.__import__(new_script, fromlist =['run'])  # works
+            self.module = __import__(new_script)    #works
             passed, message = self.module.run(helper_class)
 
         except Exception as e:

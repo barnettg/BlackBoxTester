@@ -266,8 +266,11 @@ class Model():
     def create_new_script(self, group_name, file_name, contents):
         self.script_manager.set_project_path(self.project_directory)
         self.script_manager.create_new_script(group_name, file_name, contents)
-    def run_scripts(self):
-        raise ValueError('run_scripts not completed')
+
+    def run_scripts(self, level):
+        print("model ->run script ")
+        self.script_manager.generate_script_list(level)
+        self.script_manager.run_scripts()
 
     def run_single_script_in_debug(self):
         raise ValueError('run_scripts not completed')
