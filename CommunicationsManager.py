@@ -1,45 +1,165 @@
 # CommunicationsManager.py
 # - configure and control ports
-# -- select port and assign part_id
+# -- select port and assign port_id
 # -- read and write port data
-
-# called from helper class:
-# reconnect(port_id)
-# send(port_id,data)
-# is_async_data_ready(port_id)
-# get_async_data(port_id)
-# set_using_port(string port_id)
 
 import importlib
 import sys
 import time
 
 class CommunicationsManager:
-    def __init__(self):
-        self.active_port = 0 # default to fist one
-        self.available_port_ids = {}  # format "port_id":{ "protocol_class_name": "name", "description": " desc"}
-        self.ports_connected = []
-        self.log_observers = []
-        self.proto_class = None
-        self.module = None
+    """
+    Configure and control communication ports
 
-    def get_available_ports(self):
+    Methods available to scripts via helper class:
+        reconnect(port_id:int)
+        send(data:str, port_id:int)
+        is_async_data_ready(port_id:int)
+        get_async_data(port_id:int)
+        set_using_port(port_id:int)
+    """
+    def __init__(self):
+        """Example of docstring on the __init__ method.
+
+        Attributes:
+            available_port_ids  (dict) : dictionary keys of the port numeric IDs(i.e. 0, 1, etc.)
+                                                The value is another dictionary containing:
+                                                "protocol_class_name": "name"
+                                                "description": " desc"
+                                                "instance": the instance of the protocol class used for this ID
+
+            active_port (int) : the port that will be used for default communications when the ID is not specified
+                                example: send(data)  will use the default active port
+
+            log_observers (list) : list of methods to be called for logging
+
+        """
+        self.active_port = 0 # default to fist one
+        self.available_port_ids = {}  #
+        #self.ports_connected = []
+        self.log_observers = []
+        self.proto_class = None # don't need to be class attribute?
+        self.module = None # don't need to be class attribute?
+
+    def get_available_ports(self) -> dict:
+        """
+        returns the available ports dictionary
+        """
         return self.available_port_ids
 
-    def set_active_port(self, prt_id):
+    def set_active_port(self, prt_id:int):
+        """
+        Set the default port to use (one of the available ports in the available_port_ids dictionary
+
+        Args:
+            prt_id (int): This is the first param.
+
+        Returns:
+            None
+
+        """
         self.active_port = prt_id
 
-    def assign_port(self, prt_id,  protocol_class):  # not completed yet !!!!!!!!!what for????!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        pass
+    def assign_port(self, prt_id:int,
+                    protocol_module_name:str,
+                    protocol_class_name:str ) -> bool:  #
+        """
+        Add an ID to the available_port_ids dictionary
 
-    def unassign_port(self, prt_id):
+        Args:
+            prt_id (int): Port dictionary key
+            protocol_module_name (str): relative pahe and name of file containing the class to use
+            protocol_class (str): Protocol class name
+
+        Returns:
+            (bool) True if added, False if ID already exists
+        """
+        if prt_id in self.available_port_ids.keys():
+            return False
+
+        try:
+            module = importlib.__import__(protocol_module_name)
+            my_class = getattr(module, protocol_class_name)
+            proto_class = my_class(prt_id)   #
+            self.notify_log(str(self.proto_class))
+            descrip = str(self.proto_class)
+            # save to port ID list
+            self.available_port_ids[prt_id] = {"protocol_class_name": protocol_class_name,
+                                "instance": proto_class,
+                                "description": descrip}
+
+        except Exception as e:
+            print("assign_port Exception !!!!")
+            self.notify_log(str(e) + str(sys.exc_info()[0]))
+
+        return True
+
+    def unassign_port(self, prt_id:int) -> bool:
+        """
+        Removes a port from the available_port_ids dictionary
+
+        Args:
+            prt_id (int): Port dictionary key
+
+        Returns:
+            (bool) Returns True if ID in dictionary
+
+        """
         if prt_id in self.available_port_ids.keys():
             del self.available_port_ids[prt_id]
-        # check if self.active_port should be set to None
-        if self.active_port == prt_id:
-            self.active_port = 0
+            # check if self.active_port should be set to None
+            if self.active_port == prt_id:
+                self.active_port = 0
+            return True
+        return False
 
-    def connect(self, **kwargs):
+    def disconnect(self, port_id:int=None) ->str:
+        """
+        Calls the disconnect method of the protocol class
+
+        Args:
+           prt_id (int): Port dictionary key
+
+        Returns:
+            A message string from the disconnect method of the protocol class used
+
+        """
+        pid = port_id
+
+        if port_id is None:  # use default port
+            pid = self.active_port
+
+        if pid in self.available_port_ids.keys():
+            response = self.available_port_ids[pid]["instance"].disconnect()
+            return response
+        else:
+            return "Error, port ID {} not available".format(pid)
+
+    def disconnect_all(self):
+        for item in self.available_port_ids.keys():
+            self.disconnect(item)
+
+    def connect(self, **kwargs)->(bool, str):
+        """
+        Loads protocol class and applies connection protocol over the specified communications type
+
+        Args:
+            **kwargs:
+            'type' : serial or ethernet
+            'port_id' : any unused number
+            'protocol_module_name ' : python file containing class of protocol to use, includes relative path to project
+            'protocol_class_name': name of class in file
+            'IP' : '192.168.1.1'
+            'networkPort' : '502'
+            'comport' : comx or /dev/ttyx   depending on system
+            'baudrate' : '9600'
+            'parity' : none , odd, even
+            'stopbits' : 1, 1.5, 2
+
+        Returns:
+            True or false with a additional string message
+
+        """
         # CALL FOR SETUP OF FIRST CONNECTION
         # kwargs
         # 'type' : serial or ethernet
@@ -177,26 +297,78 @@ class CommunicationsManager:
             return False, "type {} is incorrect".format(type)
 
     def register_log(self, observ):
+        """
+        Register a method to be sent logging information string
+
+        Args:
+            param1: method with string argument
+
+        Returns:
+            None
+        """
         self.log_observers.append(observ)
 
     def unsubscribe_log(self, observ):
+        """
+        Remove a method from receiving logging information string
+
+        Args:
+            param1:  method with string argument
+
+        Returns:
+            None
+
+        """
         if observ in self.log_observers:
             self.log_observers.remove(observ)
 
-    def notify_log(self, data):
+    def notify_log(self, data:str):
+        """
+        Calls registered methods and passes message string
+
+        Args:
+            param1: Data string to log
+
+        Returns:
+            None
+        """
         for item in self.log_observers:
             item("CommunicationsManager::" + data)
 
-    def reconnect(self, prt_id=None):  # not completed yet !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    def reconnect(self, prt_id=None)-> bool:
+        """
+        Helper class calls this method to use the reconnect in the protocol class to
+        initiate a reconnect in case connection is lost
+
+        Args:
+            param1: Port ID to use to connect to- if not specified then the active ID is used
+
+        Returns:
+            True if connects
+        """
         ret_val = False
         if prt_id is None:  # default to active port
-            port_id = self.active_port
+            prt_id = self.active_port
 
         # try to reconnect
+        if prt_id in self.available_port_ids.keys():
+            response = self.available_port_ids[prt_id]["instance"].reconnect()
+            return response
+        else:
+            return False
 
-        return ret_val
+    def send(self, data, port_id=None)-> str:  #
+        """
+        Helper class calls this method to send data through the protocol class
 
-    def send(self, data, port_id=None):  # not completed yet !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        Args:
+            param1: Port ID to send data to
+            param2: Port ID to send data to- if not specified then the active ID is used
+
+        Returns:
+            String message from the protocol
+
+        """
         # send data and wait for response
         pid = port_id
 
@@ -209,7 +381,19 @@ class CommunicationsManager:
         else:
             return "Error, port ID {} not available".format(pid)
 
-    def send_async(self, data, port_id=None):
+    def send_async(self, data, port_id=None): #called from script (helper class)
+        """
+        Helper class calls this method to send data through the protocol class that does not expect data returned
+         protocol may not necessarily use this
+
+        Args:
+            param1: Port ID to send data to
+            param2: Port ID to send data to- if not specified then the active ID is used
+
+        Returns:
+            String message of OK or Error
+
+        """
         # send data but don't wait for response
         pid = port_id
 
@@ -218,37 +402,82 @@ class CommunicationsManager:
 
         if pid in self.available_port_ids.keys():
             self.available_port_ids[pid]["instance"].send_data_async()
+            return "OK"
         else:
             return "Error, port ID {} not available".format(pid)
 
-    def is_async_data_ready(self, port_id=None):  # not completed yet !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    def is_async_data_ready(self, port_id=None):  # called from script (helper class)
+        """
+        Helper class calls this method to check for available asynchronous data - protocol may not necessarily use this
+
+        Args:
+            port_id (int): Port dictionary key - if not specified then the active ID is used
+
+        Returns:
+            True if data is available
+        """
+        raise ValueError('not done!')
         pass
 
-    def get_async_data(self, port_id=None):  # not completed yet !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    def get_async_data(self, port_id=None) -> str:  # called from script (helper class)
+        """
+        Helper class calls this method to get all available communications data - protocol may not necessarily use this
+
+        Args:
+            port_id (int): Port dictionary key - if not specified then the active ID is used
+
+        Returns:
+            (str) Get all available communications data
+        """
+        raise ValueError('not done!')
         pass
 
-    def set_using_port(self, port_id):  # another function name to set the active port
+    def set_using_port(self, port_id:int):  # called from script (helper class)
+        """
+        Set the (default)port the script is using
+
+        Args:
+            port_id (int): Port dictionary key
+        """
         self.set_active_port(port_id)
 
-    def get_status(self, pid): # !!!!!!!!!!!!!!!!! need to include for ethernet
+    def get_status(self, pid:int)-> str:
+        """
+        calls the status method of the port ID class instance.
+
+        Args:
+            pid (int): Port dictionary key
+        Returns:
+            (str) result of class instance Status method
+
+        """
         if pid in self.available_port_ids.keys():
             return self.available_port_ids[pid]["instance"].get_status()
         else:
             return "Status Error, port ID {} not available".format(pid)
 
-#    def get_available_ports(self, pid): # !!!!!!!!!!!!!!!!! need to include for ethernet
-#        if pid in self.available_port_ids.keys():
-#            return self.available_port_ids[pid]["instance"].get_available_ports()
-#        else:
-#            return "get_available_ports Error, port ID {} not available".format(pid)
+    def get_portid_instance(self, pid:int):
+        """
+        Get the instance for the specified port ID
 
-    def get_portid_instance(self, pid):
+        Args:
+            pid (int): Port dictionary key
+
+        Returns:
+            Returns the class instance of the port ID or None if not available.
+        """
         if pid in self.available_port_ids.keys():
             return self.available_port_ids[pid]["instance"]
         else:
             return None
 
     def get_available_serial_ports(self):
+        """
+        Get a list of the availble system serial ports
+
+        Returns:
+            (list) A list of system serial port names (example "COM1").
+        """
         # return com port available
         import serial.tools.list_ports
         avail_list = []

@@ -1,4 +1,22 @@
 to do:
+    model_test1.py
+        include serial port and ethernet port in test connection. Run TrafficLights.py in each mode to try.
+        get available communication ports
+        unassign a port and save configuration file
+        connect port in script file
+        disconnect (+disconnect all) port in script file
+        reconnect to port in script file
+        disconnect all ports in script file
+        reconnect all ports in script file
+        send to active port
+        send to specified port
+        get status of serial and ethernet ports in use
+
+    CommunicationsManager.py:
+        full documentation
+        class tester
+
+
     Verify observers work in each module they are used.
     remove the debug print and change to observers and/or python logging
     complete rest of model_test1.py to test ethernet and running on closed project, and logging to file.
@@ -13,6 +31,79 @@ to do:
      need to complete ScriptManager-->run_scripts as a thread
      register observer in ScriptManager to get script run results and other info
      ScriptManager-->run_scripts -- later to add data from the helper class written from script to be passed to the notify method
+
+
+
+example documentation
+
+    """The summary line for a class docstring should fit on one line.
+
+    If the class has public attributes, they may be documented here
+    in an ``Attributes`` section and follow the same formatting as a
+    function's ``Args`` section. Alternatively, attributes may be documented
+    inline with the attribute's declaration (see __init__ method below).
+
+    Properties created with the ``@property`` decorator should be documented
+    in the property's getter method.
+
+    Attributes:
+        attr1 (str): Description of `attr1`.
+        attr2 (:obj:`int`, optional): Description of `attr2`.
+
+    """
+
+        """Example of docstring on the __init__ method.
+
+        The __init__ method may be documented in either the class level
+        docstring, or as a docstring on the __init__ method itself.
+
+        Either form is acceptable, but the two should not be mixed. Choose one
+        convention to document the __init__ method and be consistent with it.
+
+        Note:
+            Do not include the `self` parameter in the ``Args`` section.
+
+        Args:
+            param1 (str): Description of `param1`.
+            param2 (:obj:`int`, optional): Description of `param2`. Multiple
+                lines are supported.
+            param3 (:obj:`list` of :obj:`str`): Description of `param3`.
+
+        """
+        self.attr3 = param3  #: Doc comment *inline* with attribute
+
+        #: list of str: Doc comment *before* attribute, with type specified
+        self.attr4 = ['attr4']
+
+
+
+     """
+    This is an example of Google style.
+
+    Args:
+        param1: This is the first param.
+        param2: This is a second param.
+
+    Returns:
+        This is a description of what is returned.
+
+    Raises:
+        KeyError: Raises an exception.
+    """
+https://medium.com/@ageitgey/learn-how-to-use-static-type-checking-in-python-3-6-in-10-minutes-12c86d72677b
+https://www.caktusgroup.com/blog/2017/02/22/python-type-annotations/
+def get_first_name(full_name: str) -> str:
+    return full_name.split(" ")[0]
+
+fallback_name: Dict[str, str] = {
+    "first_name": "UserFirstName",
+    "last_name": "UserLastName"
+}
+
+
+
+
+
 
 18-MAY-2018
     Able to run a script test on TrafficLights using serial port with model_test1

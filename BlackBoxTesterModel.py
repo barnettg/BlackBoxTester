@@ -17,8 +17,41 @@ import pprint
 
 
 class Model():
+    """The summary line for a class docstring should fit on one line.
+
+    If the class has public attributes, they may be documented here
+    in an ``Attributes`` section and follow the same formatting as a
+    function's ``Args`` section. Alternatively, attributes may be documented
+    inline with the attribute's declaration (see __init__ method below).
+
+    Properties created with the ``@property`` decorator should be documented
+    in the property's getter method.
+
+    Attributes:
+        attr1 (str): Description of `attr1`.
+        attr2 (:obj:`int`, optional): Description of `attr2`.
+
+    """
 
     def __init__(self, cntrlr):
+        """Example of docstring on the __init__ method.
+
+        The __init__ method may be documented in either the class level
+        docstring, or as a docstring on the __init__ method itself.
+
+        Either form is acceptable, but the two should not be mixed. Choose one
+        convention to document the __init__ method and be consistent with it.
+
+        Note:
+            Do not include the `self` parameter in the ``Args`` section.
+
+        Args:
+            param1 (str): Description of `param1`.
+            param2 (:obj:`int`, optional): Description of `param2`. Multiple
+                lines are supported.
+            param3 (:obj:`list` of :obj:`str`): Description of `param3`.
+
+        """
         self.controller = cntrlr
         self.helper_class = HelperClassPy.HelperClassPy()
         self.configuration_manager = ConfigurationManager.ConfigurationManager()
@@ -63,6 +96,16 @@ class Model():
                 self.script_manager.set_project_path(self.project_directory)
                 return True
         return False
+
+    def close_project(self):
+        self.project_directory = None
+        self.project_configuration = None
+        self.bbt_configuration_content['current project'] = None  # project path
+        self.bbt_configuration_content['current project config'] = None  # config file name
+        self.set_helper_project_directory()
+        self.configuration_manager.empty_configuration()
+        self.script_manager.set_project_path("")
+        self.communications_manager.disconnect_all() # close communications
 
     def verify_project_structure(self, proj_path):
             directories = ["configurations", "lib", "logs",  "plugins", "scripts", "userfiles"]
@@ -257,6 +300,13 @@ class Model():
                                                  stop=1 ) -> bool:
 
         temp_dictionary = {'type':'serial', 'comport': comport, 'baudrate': baud, 'parity': parity, 'stopbits': stop }
+        return self.configuration_manager.add_communications_port_id(identification, temp_dictionary )
+
+    def project_configuration_add_network_port_id(self, identification: str,
+                                                 ip: str,
+                                                 network_port: str,
+                                                  ) -> bool:
+        temp_dictionary = {'type':'ethernet', 'IP': ip, 'networkPort': network_port }
         return self.configuration_manager.add_communications_port_id(identification, temp_dictionary )
 
     def save_configuration(self):

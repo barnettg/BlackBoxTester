@@ -63,6 +63,7 @@ print(str(ser_avail_list))
 # select first com port
 ser_prt = ser_avail_list[1]
 model.project_configuration_add_serial_port_id("0", comport=ser_prt, baud='57600')
+model.project_configuration_add_network_port_id("1", ip="127.0.0.1", network_port='502')
 
 # save configuration
 print("save configuration -------")
@@ -76,6 +77,14 @@ contents = (
 def run(HC):
     HC.write_message("message 1")
     HC.write_message("message 2")
+    result = HC.send("?state", 0)
+    HC.write_message("port ID 0 ?state result:" + result)
+    result = HC.send("CHANGE", 0)
+    HC.write_message("port ID 0 CHANGE result:" + result)
+    result = HC.send("?state", 1)
+    HC.write_message("port ID 1 ?state result:" + result)
+    result = HC.send("CHANGE", 1)
+    HC.write_message("port ID 1 CHANGE result:" + result)
     return True, "PASS "
 ''')
 model.create_new_script("group1","firstScript.py", contents)
@@ -86,6 +95,8 @@ script_name = "scripts\\group1\\firstScript.py"
 model.add_script_to_configuration(script_name)
 model.set_script_configurations(script_name, selected_to_run="True", priority_level=1)
 
+# get available communication ports
+
 # save configuration
 print("save configuration -------")
 model.save_configuration() # default config file should be used
@@ -95,19 +106,31 @@ model.save_configuration() # default config file should be used
 com_string = ser_avail_list[0]
 # ------ print "Open a test system program using " + com_string
 # wait for <cr>
-resp = input("Open a system to test on " + com_string + "  at 57600 baud")
-
+resp = input("Open TrafficLights.py to test on " + com_string + "  at 57600 baud")
+resp = input("Open TrafficLights.py ethernet to test on 127.0.0.1")
 model.run_scripts(10)# run down to level 10
 
 # close project
+model.close_project()
 
-# try to run things with a closed project -- not crash
+# try to run things with a closed project -- not crash and notify
+print("Try to run things with a closed project")
+print("run scripts -------")
+model.run_scripts(10)# run down to level 10
+print("save configuration -------")
+model.save_configuration() # default config file should be used
+print("open new configuration -------")
+model.create_new_project_configuration('config_temp_x.txt')
+
 
 # open project
+model.open_project('c:\\Users\\glen\\Documents\\temporaryTestDirectory')
 
 # open configuration
+model.open_project_config('config_temp_1.txt')
 
 # run scripts
+model.run_scripts(10)# run down to level 10
 
 # model.check_project_validity('c:','temporaryTestDirectory')
 
