@@ -7,6 +7,7 @@ import importlib
 import sys
 import time
 
+
 class CommunicationsManager:
     """
     Configure and control communication ports
@@ -34,12 +35,12 @@ class CommunicationsManager:
             log_observers (list) : list of methods to be called for logging
 
         """
-        self.active_port = 0 # default to fist one
+        self.active_port = 0  # default to fist one
         self.available_port_ids = {}  #
-        #self.ports_connected = []
+        # self.ports_connected = []
         self.log_observers = []
-        self.proto_class = None # don't need to be class attribute?
-        self.module = None # don't need to be class attribute?
+        self.proto_class = None  # don't need to be class attribute?
+        self.module = None  # don't need to be class attribute?
 
     def get_available_ports(self) -> dict:
         """
@@ -47,7 +48,7 @@ class CommunicationsManager:
         """
         return self.available_port_ids
 
-    def set_active_port(self, prt_id:int):
+    def set_active_port(self, prt_id: int):
         """
         Set the default port to use (one of the available ports in the available_port_ids dictionary
 
@@ -60,15 +61,15 @@ class CommunicationsManager:
         """
         self.active_port = prt_id
 
-    def assign_port(self, prt_id:int,
-                    protocol_module_name:str,
-                    protocol_class_name:str ) -> bool:  #
+    def assign_port(self, prt_id: int,
+                    protocol_module_name: str,
+                    protocol_class_name: str) -> bool:  #
         """
         Add an ID to the available_port_ids dictionary
 
         Args:
             prt_id (int): Port dictionary key
-            protocol_module_name (str): relative pahe and name of file containing the class to use
+            protocol_module_name (str): relative path and name of file containing the class to use
             protocol_class (str): Protocol class name
 
         Returns:
@@ -84,9 +85,10 @@ class CommunicationsManager:
             self.notify_log(str(self.proto_class))
             descrip = str(self.proto_class)
             # save to port ID list
-            self.available_port_ids[prt_id] = {"protocol_class_name": protocol_class_name,
-                                "instance": proto_class,
-                                "description": descrip}
+            self.available_port_ids[prt_id] = {
+                "protocol_class_name": protocol_class_name,
+                "instance": proto_class,
+                "description": descrip}
 
         except Exception as e:
             print("assign_port Exception !!!!")
@@ -94,7 +96,7 @@ class CommunicationsManager:
 
         return True
 
-    def unassign_port(self, prt_id:int) -> bool:
+    def unassign_port(self, prt_id: int) -> bool:
         """
         Removes a port from the available_port_ids dictionary
 
@@ -106,6 +108,7 @@ class CommunicationsManager:
 
         """
         if prt_id in self.available_port_ids.keys():
+            self.closedown_port(prt_id)
             del self.available_port_ids[prt_id]
             # check if self.active_port should be set to None
             if self.active_port == prt_id:
@@ -113,7 +116,7 @@ class CommunicationsManager:
             return True
         return False
 
-    def disconnect(self, port_id:int=None) ->str:
+    def disconnect(self, port_id: int=None) ->str:
         """
         Calls the disconnect method of the protocol class
 
@@ -246,9 +249,10 @@ class CommunicationsManager:
             if ret_val:
                 descrip = str(self.proto_class)
                 # save to port ID list
-                self.available_port_ids[port_id] = {"protocol_class_name": protocol_class_name,
-                                    "instance": self.proto_class,
-                                    "description": descrip}
+                self.available_port_ids[port_id] = {
+                    "protocol_class_name": protocol_class_name,
+                    "instance": self.proto_class,
+                    "description": descrip}
                 return True, "connected"
 
             return False, "Could not connect"
@@ -322,7 +326,7 @@ class CommunicationsManager:
         if observ in self.log_observers:
             self.log_observers.remove(observ)
 
-    def notify_log(self, data:str):
+    def notify_log(self, data: str):
         """
         Calls registered methods and passes message string
 
@@ -335,7 +339,7 @@ class CommunicationsManager:
         for item in self.log_observers:
             item("CommunicationsManager::" + data)
 
-    def reconnect(self, prt_id=None)-> bool:
+    def reconnect(self, prt_id: int=None)-> bool:
         """
         Helper class calls this method to use the reconnect in the protocol class to
         initiate a reconnect in case connection is lost
@@ -346,7 +350,6 @@ class CommunicationsManager:
         Returns:
             True if connects
         """
-        ret_val = False
         if prt_id is None:  # default to active port
             prt_id = self.active_port
 
@@ -381,7 +384,7 @@ class CommunicationsManager:
         else:
             return "Error, port ID {} not available".format(pid)
 
-    def send_async(self, data, port_id=None): #called from script (helper class)
+    def send_async(self, data: str, port_id: int=None) -> str:  # called from script (helper class)
         """
         Helper class calls this method to send data through the protocol class that does not expect data returned
          protocol may not necessarily use this
@@ -401,12 +404,12 @@ class CommunicationsManager:
             pid = self.active_port
 
         if pid in self.available_port_ids.keys():
-            self.available_port_ids[pid]["instance"].send_data_async()
+            self.available_port_ids[pid]["instance"].send_data_async(data)
             return "OK"
         else:
             return "Error, port ID {} not available".format(pid)
 
-    def is_async_data_ready(self, port_id=None):  # called from script (helper class)
+    def is_async_data_ready(self, port_id: int=None):  # called from script (helper class)
         """
         Helper class calls this method to check for available asynchronous data - protocol may not necessarily use this
 
@@ -432,7 +435,7 @@ class CommunicationsManager:
         raise ValueError('not done!')
         pass
 
-    def set_using_port(self, port_id:int):  # called from script (helper class)
+    def set_using_port(self, port_id: int):  # called from script (helper class)
         """
         Set the (default)port the script is using
 
@@ -441,7 +444,7 @@ class CommunicationsManager:
         """
         self.set_active_port(port_id)
 
-    def get_status(self, pid:int)-> str:
+    def get_status(self, pid: int)-> str:
         """
         calls the status method of the port ID class instance.
 
@@ -456,7 +459,7 @@ class CommunicationsManager:
         else:
             return "Status Error, port ID {} not available".format(pid)
 
-    def get_portid_instance(self, pid:int):
+    def get_portid_instance(self, pid: int):
         """
         Get the instance for the specified port ID
 
@@ -481,12 +484,41 @@ class CommunicationsManager:
         # return com port available
         import serial.tools.list_ports
         avail_list = []
-        #print (dir(serial.tools.list_ports.comports()))
+        # print (dir(serial.tools.list_ports.comports()))
         for port in serial.tools.list_ports.comports():
-            #print(dir(port))
-            #print(str(port.device))
+            # print(dir(port))
+            # print(str(port.device))
             avail_list.append(port.device)
-        return (avail_list)
+        return avail_list
+
+    def closedown_port(self, port_id: int) -> bool:
+        """
+        Close the com port and stop threads
+
+        Args:
+            port_id (int): Port dictionary key
+        """
+        if port_id in self.available_port_ids.keys():
+            self.available_port_ids[port_id]["instance"].disconnect()
+            self.available_port_ids[port_id]["instance"].stop_Thread()
+            return True
+        return False
+
+    def set_data_wait_ms(self, port_id: int, ms: int) -> bool:  #
+        """
+        Set the time to wait for a response in ms after sending data.
+
+        Args:
+            port_id (int): Port dictionary key
+            ms (int) : The milliseconds.
+
+        Returns:
+            True if ID exists
+        """
+        if port_id in self.available_port_ids.keys():
+            self.available_port_ids[port_id]["instance"].set_data_wait_ms(ms)
+            return True
+        return False
 
 if __name__ == "__main__":
     def print_log(message):
@@ -513,7 +545,7 @@ if __name__ == "__main__":
         print(pid_instance.get_available_ports())
 
     pid_instance = cm.get_portid_instance(0)
-    pid_instance.ending = "\n" # "\n" for raspberry pi TrafficLights.py using os.linesep instead of "\r\n"
+    pid_instance.ending = "\n"  # "\n" for raspberry pi TrafficLights.py using os.linesep instead of "\r\n"
     print("?state1: " + cm.send("?state", 0))
     print("CHANGE1: " + cm.send("CHANGE", 0))
     print("?state2: " + cm.send("?state", 0))
@@ -525,7 +557,7 @@ if __name__ == "__main__":
     print("?state5: " + cm.send("?state", 0))
     print("CHANGE5: " + cm.send("CHANGE", 0))
     print("Expect error with this command ->menu: " + cm.send("menu", 0))
-    pid_instance.set_data_wait_ms(4000) # need more time for menu command
+    pid_instance.set_data_wait_ms(4000)  # need more time for menu command
     time1 = time.clock()
     val = cm.send("?menu", 0)
     time2 = time.clock()
@@ -533,7 +565,7 @@ if __name__ == "__main__":
     print("time2: {}".format(time2))
     val.replace('\b', "\r\n")
     print("val: " + val)
-    #print("?menu: " + val)
+    # print("?menu: " + val)
     print("?state6: " + cm.send("?state", 0))
     print("CHANGE6: " + cm.send("CHANGE", 0))
 
@@ -543,5 +575,3 @@ if __name__ == "__main__":
     pid_instance.stop_Thread()
 
     print("Done ------------------")
-
-

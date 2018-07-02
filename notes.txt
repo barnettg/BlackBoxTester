@@ -12,9 +12,12 @@ to do:
         send to specified port
         get status of serial and ethernet ports in use
 
+
     CommunicationsManager.py:
         full documentation
         class tester
+        should send_data return *args and **kwargs also for more than just strings?
+        pass along *kwargs in network selection of connect method
 
 
     Verify observers work in each module they are used.
