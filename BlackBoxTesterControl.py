@@ -3,9 +3,9 @@ import BlackBoxTesterView
 import BlackBoxTesterModel
 
 class Controller():
-    def __init__(self):
-        self.model = BlackBoxTesterModel.Model()
-        self.view = BlackBoxTesterView.View()
+    def __init__(self, the_model, the_view):
+        self.model = the_model.Model(self) # BlackBoxTesterModel.Model()
+        self.view = the_view.View() # BlackBoxTesterView.View()
         self.view.centerPanel.scriptstab.LoadBtn.bind("<Button>",self.scriptSelectionLoadButtonClick)
 
     def run(self): # need to run as thread????

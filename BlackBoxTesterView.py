@@ -3,7 +3,7 @@ from tkinter import ttk
  
 class View():
     def __init__(self):
-
+        #root.update_idletasks()
         self.master = Tk.Tk()
         content = ttk.Frame(self.master) # not used
 
@@ -48,25 +48,107 @@ class View():
 class Menus():
     def __init__(self, root):
         self.menubar = Tk.Menu(root) # frame that holds the menu buttons
+
         # Create File menu
-        self.filemenu = Tk.Menu(self.menubar, tearoff=0 )
-        self.filemenu.add_command(label="Exit", accelerator='Alt+F4')
+        self.fileMenu = Tk.Menu(self.menubar, tearoff=0 )
+        self.fileMenu.add_command(label="Exit", accelerator='Alt+F4', command=self.exitMenu)
         # all file menu choices will be placed here
-        self.menubar.add_cascade(label="File", menu=self.filemenu)
+        self.menubar.add_cascade(label="File", menu=self.fileMenu)
+
+        # Create Project menu
+        self.projectMenu = Tk.Menu(self.menubar, tearoff=0)
+        self.projectMenu.add_command(label="New", command=self.newProject)
+        self.projectMenu.add_command(label="Open", command=self.openProject)
+        self.projectMenu.add_command(label="Save", command=self.saveProject)
+        self.projectMenu.add_command(label="Save As", command=self.saveProjectAs)
+        self.projectMenu.add_command(label="Close", command=self.closeProject)
+        self.projectMenu.add_separator()
+        self.projectMenu.add_command(label="Open Configuration", command=self.openConfiguration)
+        self.projectMenu.add_command(label="Save Configuration", command=self.saveConfiguration)
+        self.projectMenu.add_command(label="Save Configuration AS", command=self.saveConfigurationAs)
+        self.menubar.add_cascade(label="Project", menu=self.projectMenu)
+
+        # Create Tests menu
+        self.testsMenu = Tk.Menu(self.menubar, tearoff=0)
+        self.testsMenu.add_command(label="Show Communications Window", command=self.testsShoeCommWin)
+        self.testsMenu.add_command(label="Show Message Window", command=self.testsShowMessageWin)
+        self.testsMenu.add_separator()
+        self.testsMenu.add_command(label="Start", command=self.testsStart)
+        self.testsMenu.add_command(label="Stop", command=self.testsStop)
+        self.testsMenu.add_command(label="Pause", command=self.testsPause)
+        self.testsMenu.add_command(label="Continue", command=self.testsContinue)
+        self.testsMenu.add_separator()
+        self.testsMenu.add_command(label="Save Report", command=self.testsSaveReport)
+        self.menubar.add_cascade(label="Tests", menu=self.testsMenu)
+
 
         # Create About menu
-        self.aboutmenu = Tk.Menu(self.menubar, tearoff=0)
-        self.aboutmenu.add_command(label="About")
-        self.aboutmenu.add_command(label="Help")
-        self.menubar.add_cascade(label="About", menu=self.aboutmenu)
+        self.aboutMenu = Tk.Menu(self.menubar, tearoff=0)
+        self.aboutMenu.add_command(label="About", command=self.showAbout)
+        self.aboutMenu.add_command(label="Manual", command=self.showManual)
+        self.menubar.add_cascade(label="About", menu=self.aboutMenu)
 
         # Displaying menu on top of root.
         root.config(menu=self.menubar)
 
+    def exitMenu(self):
+        print("Exit Menu")
+
+    def showAbout(self):
+        print("About Menu")
+
+    def showManual(self):
+        print("Manual Menu")
+
+    def newProject(self):
+        print("newProject Menu")
+
+    def openProject(self):
+        print("openProject Menu")
+
+    def saveProject(self):
+        print("saveProject Menu")
+
+    def saveProjectAs(self):
+        print("saveProjectAs Menu")
+
+    def closeProject(self):
+        print("closeProject Menu")
+
+    def openConfiguration(self):
+        print("openConfiguration Menu")
+
+    def saveConfiguration(self):
+        print("saveConfiguration Menu")
+
+    def saveConfigurationAs(self):
+        print("saveConfigurationAs Menu")
+
+
+    def testsShoeCommWin(self):
+        print("testsShoeCommWin Menu")
+
+    def testsShowMessageWin(self):
+        print("testsShowMessageWin Menu")
+
+    def testsStart(self):
+        print("testsStart Menu")
+
+    def testsStop(self):
+        print("testsStop Menu")
+
+    def testsPause(self):
+        print("testsPause Menu")
+
+    def testsContinue(self):
+        print("testsContinue Menu")
+
+    def testsSaveReport(self):
+        print("testsSaveReport Menu")
 
 class CenterPanel():
     def __init__(self, root):
-        panedwin = Tk.PanedWindow(root, sashwidth=6, sashrelief=Tk.RAISED, borderwidth =10, handlesize=10, orient=Tk.HORIZONTAL)
+        panedwin = Tk.PanedWindow(root, sashwidth=6, sashrelief=Tk.RAISED, borderwidth=10, handlesize=10, orient=Tk.HORIZONTAL)
         nbLeft = ttk.Notebook(panedwin)
         self.scriptstab = scriptsTab(nbLeft)
         portsTab(nbLeft)
@@ -180,20 +262,32 @@ class portsTab():
         
 class TopPanel():
     def __init__(self, root):
-        self.frame3 = Tk.Frame( root, relief="sunken", borderwidth=5, width=200, height=100 )
+        self.frame3 = Tk.Frame( root, relief="sunken", borderwidth=1, width=200, height=100 )
         self.frame3.grid(row=0,column=0, sticky=(Tk.N, Tk.S, Tk.E, Tk.W)) #
-        self.topBut = Tk.Button(self.frame3, text="Plot ")
-        self.topBut.pack(side="top")#,fill=Tk.BOTH)
+        self.varProjLbl = Tk.StringVar()
+        self.varProjLbl.set('Project:')
+        self.varConfigLbl = Tk.StringVar()
+        self.varConfigLbl.set('Configuration:')
+
+        self.projectLabel = Tk.Label(self.frame3, textvariable = self.varProjLbl)
+        self.configurationLabel = Tk.Label(self.frame3, textvariable = self.varConfigLbl)
+        #self.topBut = Tk.Button(self.frame3, text="Plot ")
+        #self.topBut.pack(side="top")#,fill=Tk.BOTH)
+        self.projectLabel.pack(side="top", anchor = Tk.W)
+        self.configurationLabel.pack(side="top", anchor = Tk.W)
+
 
         
 class BottomPanel():
     def __init__(self, root):
-        self.frame2 = Tk.Frame( root , relief="sunken", borderwidth=5)#, width=200, height=100)
+        self.frame2 = Tk.Frame( root , relief="sunken", borderwidth=1)#, width=200, height=100)
         self.frame2.grid(row=21,column=0, sticky=(Tk.N, Tk.S, Tk.E, Tk.W)) #
-        self.plotBut = Tk.Button(self.frame2, text="Plot ")
-        self.plotBut.pack(side="top",fill=Tk.BOTH)
-        self.clearButton = Tk.Button(self.frame2, text="Clear")
-        self.clearButton.pack(side="top")#,fill=Tk.BOTH)
+
+        self.varStatusLbl = Tk.StringVar()
+        self.varStatusLbl.set('Status:')
+        self.varStatusLbl = Tk.Label(self.frame2, textvariable = self.varStatusLbl)
+        self.varStatusLbl.pack(anchor = Tk.W) #side="top",fill=Tk.X)
+
 
 if __name__ == '__main__':
     view = View()

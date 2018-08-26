@@ -60,7 +60,6 @@ class ConfigurationManager(object):
             param3 (:obj:`list` of :obj:`str`): Description of `param3`.
 
         """
-        self.close()
         self.ObserverList = []
 
     def empty_configuration(self):

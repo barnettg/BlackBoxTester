@@ -12,6 +12,13 @@ to do:
         send to specified port
         get status of serial and ethernet ports in use
 
+    add email and text info to configuration dictionary
+    add editor to configuration dictionary
+    add time estimate to configuration for each script
+    add protocol file and class name to configuration for each script
+    add addins to configuration dictionary
+    add communications ports to configuration dictionary
+
 
     CommunicationsManager.py:
         full documentation
