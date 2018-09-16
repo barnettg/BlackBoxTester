@@ -285,6 +285,7 @@ class CenterPanel():
                                   borderwidth=10,
                                   handlesize=10,
                                   orient=Tk.HORIZONTAL)
+
         nbLeft = ttk.Notebook(panedwin)
         self.scriptstab = scriptsTab(nbLeft)
         self.ports_tab = portsTab(nbLeft)
@@ -304,6 +305,11 @@ class CenterPanel():
         panedwin.add(nbRight)
 
         panedwin.grid(row=1,column=0, rowspan=20,sticky=(Tk.N, Tk.S, Tk.E, Tk.W)) #
+        print("sash pos" + str(panedwin.sash_coord(0)))
+        panedwin.update() # need to do to set sash correctly
+        position = int(root.winfo_width()/2)
+        panedwin.sash_place(0, position, 0)
+        print("sash pos" + str(panedwin.sash_coord(0)))
 
     # def addTabsLeft(self, root):
     #     page1Left = self.page1_left(root) #
@@ -330,11 +336,19 @@ class scriptsTab():
         #frame.grid(row=0,column=0,sticky=(Tk.N, Tk.S, Tk.E, Tk.W)) #
         #Tk.Grid.columnconfigure(frame, 0, weight=1)
 
-        tree = ttk.Treeview(frame)
-        tree.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.BOTH, anchor =Tk.NW)#
+        self.tree = ttk.Treeview(frame, displaycolumns = '#all')
+        vsb = ttk.Scrollbar(frame, orient="vertical", command=self.tree.yview)
+        vsb.pack(side='right', fill='y')
+
+        self.tree.configure(yscrollcommand=vsb.set)
+        self.tree.bind("<Double-1>", self.OnDoubleClick)
+
+        self.test_add_misc_tree_data()
+
+        self.tree.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.BOTH, anchor =Tk.NW)#
 
         # add button frame
-        bottomFrame = ttk.Frame(frame, relief="sunken", borderwidth=5)#
+        bottomFrame = ttk.Frame(tab, relief="sunken", borderwidth=5)#
         self.OpenEditorBtn = Tk.Button(bottomFrame, text="Edit/Debug Terminal ",
                                        width=20, command=self.OpenEditorButton)
         self.OpenEditorBtn.pack(anchor = Tk.W)
@@ -347,6 +361,53 @@ class scriptsTab():
         root.add(tab, text='Scripts')
         self.openEditorButtonCallback = None
         self.editConfigButtonCallback = None
+
+    def OnDoubleClick(self, event):
+        item = self.tree.selection()[0]
+        print("you clicked on", self.tree.item(item,"text"), self.tree.item(item,"values")[0], str(self.tree.item(item)))
+        print("the parent is: ", self.tree.parent(item))
+
+
+    def test_add_misc_tree_data(self):
+        #-----------------------------------------------------------------------
+        # group name
+        #   name of script
+        #   selected * or blank
+        #   priority level
+        #   estimated time
+        #   protocol file/class
+        #   helper class
+
+        # you clicked on file 2 * {'text': 'file 2', 'image': '', 'values': ['*', 1, 26, 'Simple/Simple', 'Helper.py'], 'open': True, 'tags': ''}
+
+        self.tree["columns"]=("Selected","Level","Time Est","Protocol","Helper")
+        #self.tree.column("one", width=100 )
+        #self.tree.column("two", width=100)
+        self.tree.heading("Selected", text="Selected")
+        self.tree.heading("Level", text="Level")
+        self.tree.heading("Time Est", text="Time Est.")
+        self.tree.heading("Protocol", text="Protocol")
+        self.tree.heading("Helper", text="Helper")
+
+
+        #self.tree.insert("" , 0,    text="Group 1", values=("*"))
+
+        id2 = self.tree.insert("", "end", "Group1", text="Group 1", values=("*"))
+        self.tree.insert(id2, "end", text="file 1", values=("*","1","25.4","Simple/Simple","Helper.py"))
+        self.tree.insert(id2, "end", text="file 2", values=("*","1","50","Simple/Simple","Helper.py"))
+        self.tree.insert(id2, "end", text="file 3", values=("*","1","110","Simple/Simple","Helper.py"))
+
+        ##alternatively:
+        #self.tree.insert("", 3, "dir3", text="Dir 3")
+        #self.tree.insert("dir3", 3, text=" sub dir 3",values=("3A"," 3B"))
+
+        self.tree.insert("", "end", "Group2", text="Group 2", values=("*"))
+        self.tree.insert("Group2", "end", text="file 1", values=("*","1","25","Simple/Simple","Helper.py"))
+        self.tree.insert("Group2", "end", text="file 2", values=("*","1","26","Simple/Simple","Helper.py"))
+        self.tree.insert("Group2", "end", text="file 3", values=("*","1","100","Simple/Simple","Helper.py"))
+
+
+        #----------------------------------------------------------------------------
 
     def SetOpenEditorButtonCallback(self, method):
         self.openEditorButtonCallback = method
