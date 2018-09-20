@@ -300,8 +300,11 @@ class CenterPanel():
         panedwin.add(nbLeft)
 
         nbRight = ttk.Notebook(panedwin)
-        page1Right = ttk.Frame(nbRight)
-        nbRight.add(page1Right, text='tab1')
+        self.passed_tab = PassedTab(nbRight)
+        self.failed_tab = FailedTab(nbRight)
+        self.progress_tab = ProgressTab(nbRight)
+        #page1Right = ttk.Frame(nbRight)
+        #nbRight.add(page1Right, text='tab1')
         panedwin.add(nbRight)
 
         panedwin.grid(row=1,column=0, rowspan=20,sticky=(Tk.N, Tk.S, Tk.E, Tk.W)) #
@@ -644,6 +647,78 @@ class PluginsTab():
         else:
             print("Plugin Remove Button method not set")
 
+class PassedTab():
+    def __init__(self, root):
+        tab = ttk.Frame(root, relief="sunken", borderwidth=1, width=100, height=100)
+
+        self.passed = Tk.Listbox(tab)#, width=100, height=15)
+        self.passed.pack(side=Tk.TOP, expand=Tk.YES, anchor =Tk.W, padx=5, pady=5, fill=Tk.BOTH)
+
+        root.add(tab, text='Passed')
+
+class FailedTab():
+    def __init__(self, root):
+        tab = ttk.Frame(root, relief="sunken", borderwidth=1, width=100, height=100)
+
+        self.failed = Tk.Listbox(tab)#, width=100, height=15)
+        self.failed.pack(side=Tk.TOP, expand=Tk.YES, anchor =Tk.W, padx=5, pady=5, fill=Tk.BOTH)
+
+        root.add(tab, text='Failed')
+
+class ProgressTab():
+    def __init__(self, root):
+        tab = ttk.Frame(root, relief="sunken", borderwidth=1, width=100, height=100)
+
+
+        # top button frame---------------------------------------------------------------
+        topFrame = ttk.Frame(tab, relief="flat", borderwidth=5)#
+        self.start_btn = Tk.Button(topFrame, text="Start ", width=10)
+        self.stop_btn = Tk.Button(topFrame, text="stop ", width=10)
+        self.pause_btn = Tk.Button(topFrame, text="pause ", width=10)
+        self.start_btn.pack(side=Tk.LEFT, padx=15, pady=5)
+        self.stop_btn.pack(side=Tk.LEFT, padx=15, pady=5)
+        self.pause_btn.pack(side=Tk.LEFT, padx=15, pady=5)
+        topFrame.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.X, anchor =Tk.NW, padx=5, pady=5)
+
+        # times frame---------------------------------------------------------------
+        time_frame = ttk.Frame(tab, relief="flat", borderwidth=5)#
+        self.total_time_label = Tk.Label(time_frame, text="Remaining Total Time: ")
+        self.total_time_label.pack(side=Tk.TOP, padx=5, pady=5, anchor =Tk.W)
+        self.running_label = Tk.Label(time_frame, text="Running Script: ")
+        self.running_label.pack(side=Tk.TOP, padx=5, pady=5, anchor =Tk.W)
+        self.remaining_time_label = Tk.Label(time_frame, text="Script Remaining Time: ")
+        self.remaining_time_label.pack(side=Tk.TOP, padx=5, pady=5, anchor =Tk.W)
+        time_frame.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.X, anchor =Tk.NW, padx=5, pady=5)
+
+        # queue frame---------------------------------------------------------------
+        queue_frame = ttk.Frame(tab, relief="flat", borderwidth=5)#
+        self.queue_label = Tk.Label(queue_frame, text="Queue: ")
+        self.queue_label.pack(side=Tk.TOP, padx=5, pady=5, anchor =Tk.W)
+        self.queue_listbox = Tk.Listbox(queue_frame)#, width=100, height=15)
+        self.queue_listbox.pack(side=Tk.TOP, expand=Tk.YES, anchor =Tk.W, padx=5, pady=5, fill=Tk.BOTH)
+        queue_frame.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.X, anchor =Tk.NW, padx=5, pady=5)
+
+        # checkbox frame---------------------------------------------------------------
+        checkbox_frame = ttk.Frame(tab, relief="flat", borderwidth=5)#
+        self.save_report_cb = Tk.Checkbutton(checkbox_frame, text="Save Report ")
+        self.save_report_cb.pack(side=Tk.TOP, padx=5, pady=1, anchor =Tk.W)
+        self.stop_on_fail_cb = Tk.Checkbutton(checkbox_frame, text="Stop all tests on first fail ")
+        self.stop_on_fail_cb.pack(side=Tk.TOP, padx=5, pady=1, anchor =Tk.W)
+        checkbox_frame.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.X, anchor =Tk.NW, padx=5, pady=5)
+
+        # bottom button frame---------------------------------------------------------------
+        bottom_frame = ttk.Frame(tab, relief="flat", borderwidth=5)#
+        self.show_mess_btn = Tk.Button(bottom_frame, text="Show Messages ", width=25)
+        self.show_com_btn = Tk.Button(bottom_frame, text="Show Communications ", width=25)
+        self.show_mess_btn.pack(side=Tk.LEFT, padx=15, pady=5)
+        self.show_com_btn.pack(side=Tk.LEFT, padx=15, pady=5)
+        bottom_frame.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.X, anchor =Tk.NW, padx=5, pady=5)
+
+
+
+        root.add(tab, text='Progress')
+
+
 class portsTab():
     def __init__(self, root):
         tab = ttk.Frame(root, relief="sunken", borderwidth=1, width=100, height=100)
@@ -693,8 +768,6 @@ class portsTab():
             self.editButtonCallback()
         else:
             print("port Edit Button method not set")
-
-
         
 class TopPanel():
     def __init__(self, root):
