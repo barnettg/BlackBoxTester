@@ -1,8 +1,9 @@
 import tkinter as Tk
 from tkinter import ttk
 from tkinter import font
- 
-class View():
+from ViewBase import ViewBaseAbstract
+
+class View(ViewBaseAbstract):
     def __init__(self, Controller=None):
         #root.update_idletasks()
         self.master = Tk.Tk()
@@ -53,6 +54,7 @@ class View():
         self.master.deiconify()
         self.master.mainloop()
 
+    #### main window
     def setProjectLabel(self, val):
         print("set project label")
         self.topPanel.varProjLbl.set("Project: " + val)
@@ -64,6 +66,42 @@ class View():
     def setStatusLabel(self, val):
         print("set Status label")
         self.bottompanel.varStatusLbl.set("Status: " + val)
+
+    #### Menus
+    #File Menu
+    def setMenuFileExitCall(self, method):
+        self.menus.setFileExitMenuCallback(method)
+
+    #Project Menu
+    def set_menu_project_new_call(self, method):
+        self.menus.set_menu_project_new_callback(method)
+
+    def set_menu_project_open_call(self, method):
+        self.menus.set_menu_project_open_callback(method)
+
+    def set_menu_project_save_call(self, method):
+        self.menus.set_menu_project_save_callback(method)
+
+    def set_menu_project_saveas_call(self, method):
+        self.menus.set_menu_project_saveas_callback(method)
+
+    def set_menu_project_close_call(self, method):
+        self.menus.set_menu_project_close_callback(method)
+
+    def set_menu_project_open_configuration_call(self, method):
+        self.menus.set_menu_project_open_configuration_callback(method)
+
+    def set_menu_project_save_configuration_call(self, method):
+        self.menus.set_menu_project_save_configuration_callback(method)
+
+    def set_menu_project_save_configuration_as_call(self, method):
+        self.menus.set_menu_project_save_configuration_as_callback(method)
+
+    def set_menu_about_about_call(self, method):
+        self.menus.set_menu_about_about_callback(method)
+
+    def set_menu_about_manual_call(self, method):
+        self.menus.set_menu_about_manual_callback(method)
 
     #### Scripts Tab
     def setTabScriptDebugButtonCall(self, method):
@@ -139,17 +177,17 @@ class Menus():
         self.menubar.add_cascade(label="Project", menu=self.projectMenu)
 
         # Create Tests menu
-        self.testsMenu = Tk.Menu(self.menubar, tearoff=0)
-        self.testsMenu.add_command(label="Show Communications Window", command=self.testsShowCommWin)
-        self.testsMenu.add_command(label="Show Message Window", command=self.testsShowMessageWin)
-        self.testsMenu.add_separator()
-        self.testsMenu.add_command(label="Start", command=self.testsStart)
-        self.testsMenu.add_command(label="Stop", command=self.testsStop)
-        self.testsMenu.add_command(label="Pause", command=self.testsPause)
-        self.testsMenu.add_command(label="Continue", command=self.testsContinue)
-        self.testsMenu.add_separator()
-        self.testsMenu.add_command(label="Save Report", command=self.testsSaveReport)
-        self.menubar.add_cascade(label="Tests", menu=self.testsMenu)
+        # self.testsMenu = Tk.Menu(self.menubar, tearoff=0)
+        # self.testsMenu.add_command(label="Show Communications Window", command=self.testsShowCommWin)
+        # self.testsMenu.add_command(label="Show Message Window", command=self.testsShowMessageWin)
+        # self.testsMenu.add_separator()
+        # self.testsMenu.add_command(label="Start", command=self.testsStart)
+        # self.testsMenu.add_command(label="Stop", command=self.testsStop)
+        # self.testsMenu.add_command(label="Pause", command=self.testsPause)
+        # self.testsMenu.add_command(label="Continue", command=self.testsContinue)
+        # self.testsMenu.add_separator()
+        # self.testsMenu.add_command(label="Save Report", command=self.testsSaveReport)
+        # self.menubar.add_cascade(label="Tests", menu=self.testsMenu)
 
 
         # Create About menu
@@ -158,10 +196,23 @@ class Menus():
         self.aboutMenu.add_command(label="Manual", command=self.showManual)
         self.menubar.add_cascade(label="About", menu=self.aboutMenu)
 
-        # Displaying menu on top of root.
-        root.config(menu=self.menubar)
+        # callbacks
         self.fileExitMenuCallback = None
         self.testShowCommunicationsMenuCallback = None
+        self.project_new_menu_callback = None
+        self.project_open_menu_callback = None
+        self.project_close_menu_callback = None
+        self.project_save_menu_callback = None
+        self.project_saveas_menu_callback = None
+        self.project_open_configuration_callback = None
+        self.project_save_configuration_callback = None
+        self.project_save_configuration_as_callback = None
+
+        self.about_about_callback = None
+        self.about_manual_callback = None
+
+        # Displaying menu on top of root.
+        root.config(menu=self.menubar)
         self.menuMessaging = None
 
     def setFileExitMenuCallback(self, method):
@@ -171,70 +222,100 @@ class Menus():
         self.menuMessaging = method
 
     def exitMenu(self):
-        if self.menuMessaging is not None:
-            self.menuMessaging("Menu File Exit")
+        if self.fileExitMenuCallback is not None:
+            self.fileExitMenuCallback()
         else:
             print("Exit Menu messaging not set")
 
+    def set_menu_project_new_callback(self, method):
+            self.project_new_menu_callback = method
+
+    def set_menu_project_open_callback(self, method):
+        self.project_open_menu_callback = method
+
+    def set_menu_project_save_callback(self, method):
+        self.project_save_menu_callback = method
+
+    def set_menu_project_saveas_callback(self, method):
+        self.project_saveas_menu_callback = method
+
+    def set_menu_project_close_callback(self, method):
+        self.project_close_menu_callback = method
+
+    def set_menu_project_open_configuration_callback(self, method):
+        self.project_open_configuration_callback = method
+
+    def set_menu_project_save_configuration_callback(self, method):
+        self.project_save_configuration_callback = method
+
+    def set_menu_project_save_configuration_as_callback(self, method):
+        self.project_save_configuration_as_callback = method
+
+    def set_menu_about_about_callback(self, method):
+        self.about_about_callback = method
+
+    def set_menu_about_manual_callback(self, method):
+        self.about_manual_callback = method
+
     def showAbout(self):
-        if self.menuMessaging is not None:
-            self.menuMessaging("Menu About About")
+        if self.about_about_callback is not None:
+            self.about_about_callback()
         else:
             print("About Menu messaging not set")
 
     def showManual(self):
-        if self.menuMessaging is not None:
-            self.menuMessaging("Menu About Manual")
+        if self.about_manual_callback is not None:
+            self.about_manual_callback()
         else:
             print("Manual Menu messaging not set")
 
     def newProject(self):
-        if self.menuMessaging is not None:
-            self.menuMessaging("Menu Project New")
+        if self.project_new_menu_callback is not None:
+            self.project_new_menu_callback()
         else:
-            print("newProject Menu messaging not set")
+            print("Project New Menu not set")
 
     def openProject(self):
-        if self.menuMessaging is not None:
-            self.menuMessaging("Menu Project Open")
+        if self.project_open_menu_callback is not None:
+            self.project_open_menu_callback()
         else:
-            print("openProject Menu messaging not set")
+            print("Project Open Menu not set")
 
     def saveProject(self):
-        if self.menuMessaging is not None:
-            self.menuMessaging("Menu Project Save")
+        if self.project_save_menu_callback is not None:
+            self.project_save_menu_callback()
         else:
-            print("saveProject Menu messaging not set")
+            print("Project Save Menu not set")
 
     def saveProjectAs(self):
-        if self.menuMessaging is not None:
-            self.menuMessaging("Menu Project SaveAs")
+        if self.project_saveas_menu_callback is not None:
+            self.project_saveas_menu_callback()
         else:
-            print("saveProjectAs Menu messaging not set")
+            print("Project Save As Menu not set")
 
     def closeProject(self):
-        if self.menuMessaging is not None:
-            self.menuMessaging("Menu Project Close")
+        if self.project_close_menu_callback is not None:
+            self.project_close_menu_callback()
         else:
-            print("closeProject Menu messaging not set")
+            print("Project Close Menu not set")
 
     def openConfiguration(self):
-        if self.menuMessaging is not None:
-            self.menuMessaging("Menu Project OpenConfiguration")
+        if self.project_open_configuration_callback is not None:
+            self.project_open_configuration_callback()
         else:
-            print("openConfiguration Menu messaging not set")
+            print("Project open configuration Menu not set")
 
     def saveConfiguration(self):
-        if self.menuMessaging is not None:
-            self.menuMessaging("Menu Project SaveConfiguration")
+        if self.project_save_configuration_callback is not None:
+            self.project_save_configuration_callback()
         else:
-            print("saveConfiguration Menu messaging not set")
+            print("Project save configuration Menu not set")
 
     def saveConfigurationAs(self):
-        if self.menuMessaging is not None:
-            self.menuMessaging("Menu Project SaveConfigurationAs")
+        if self.project_save_configuration_as_callback is not None:
+            self.project_save_configuration_as_callback()
         else:
-            print("saveConfigurationAs Menu messaging not set")
+            print("Project save configuration as Menu not set")
 
     def testsShowCommWin(self):
         if self.menuMessaging is not None:
@@ -303,6 +384,8 @@ class CenterPanel():
         self.passed_tab = PassedTab(nbRight)
         self.failed_tab = FailedTab(nbRight)
         self.progress_tab = ProgressTab(nbRight)
+        self.messages_tab = MessagesTab(nbRight)
+        self.trace_com_tab = TraceComTab(nbRight)
         #page1Right = ttk.Frame(nbRight)
         #nbRight.add(page1Right, text='tab1')
         panedwin.add(nbRight)
@@ -707,17 +790,54 @@ class ProgressTab():
         checkbox_frame.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.X, anchor =Tk.NW, padx=5, pady=5)
 
         # bottom button frame---------------------------------------------------------------
-        bottom_frame = ttk.Frame(tab, relief="flat", borderwidth=5)#
-        self.show_mess_btn = Tk.Button(bottom_frame, text="Show Messages ", width=25)
-        self.show_com_btn = Tk.Button(bottom_frame, text="Show Communications ", width=25)
-        self.show_mess_btn.pack(side=Tk.LEFT, padx=15, pady=5)
-        self.show_com_btn.pack(side=Tk.LEFT, padx=15, pady=5)
-        bottom_frame.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.X, anchor =Tk.NW, padx=5, pady=5)
+        # bottom_frame = ttk.Frame(tab, relief="flat", borderwidth=5)#
+        # self.show_mess_btn = Tk.Button(bottom_frame, text="Show Messages ", width=25)
+        # self.show_com_btn = Tk.Button(bottom_frame, text="Show Communications ", width=25)
+        # self.show_mess_btn.pack(side=Tk.LEFT, padx=15, pady=5)
+        # self.show_com_btn.pack(side=Tk.LEFT, padx=15, pady=5)
+        # bottom_frame.pack(side=Tk.TOP, expand=Tk.YES, fill=Tk.X, anchor =Tk.NW, padx=5, pady=5)
 
+        root.add(tab, text='Tests Progress')
 
+class MessagesTab():
+    def __init__(self, root):
+        tab = ttk.Frame(root, relief="sunken", borderwidth=1, width=100, height=100)
 
-        root.add(tab, text='Progress')
+        self.content_text = Tk.Text(tab,wrap = 'word' )
+        self.scroll_bar = Tk.Scrollbar(self.content_text)
+        self.content_text.configure(yscrollcommand = self.scroll_bar.set)
+        self.scroll_bar.config( command = self.content_text.yview)
+        self.scroll_bar.pack( side ='right', fill ='y')
 
+        bottom_frame = ttk.Frame(tab, relief="flat", borderwidth=5, height = 5)#
+        self.clear_btn = Tk.Button(bottom_frame, text="Clear Messages", width=15)
+        self.enable_cb = Tk.Checkbutton(bottom_frame, text="Enable")
+        self.clear_btn.pack(side=Tk.LEFT, padx=5, pady=5)
+        self.enable_cb.pack(side=Tk.LEFT, padx=5, pady=5)
+        bottom_frame.pack(side=Tk.TOP, fill=Tk.X, anchor =Tk.NW, padx=5, pady=5)
+        self.content_text.pack(expand = 'yes', fill = 'both')
+
+        root.add(tab, text='Messages')
+
+class TraceComTab():
+    def __init__(self, root):
+        tab = ttk.Frame(root, relief="sunken", borderwidth=1, width=100, height=100)
+
+        self.content_text = Tk.Text(tab,wrap = 'word' )
+        self.scroll_bar = Tk.Scrollbar(self.content_text)
+        self.content_text.configure(yscrollcommand = self.scroll_bar.set)
+        self.scroll_bar.config( command = self.content_text.yview)
+        self.scroll_bar.pack( side ='right', fill ='y')
+
+        bottom_frame = ttk.Frame(tab, relief="flat", borderwidth=5, height = 5)#
+        self.clear_btn = Tk.Button(bottom_frame, text="Clear Trace", width=15)
+        self.enable_cb = Tk.Checkbutton(bottom_frame, text="Enable")
+        self.clear_btn.pack(side=Tk.LEFT, padx=5, pady=5)
+        self.enable_cb.pack(side=Tk.LEFT, padx=5, pady=5)
+        bottom_frame.pack(side=Tk.TOP, fill=Tk.X, anchor =Tk.NW, padx=5, pady=5)
+        self.content_text.pack(expand = 'yes', fill = 'both')
+
+        root.add(tab, text='Trace Communications')
 
 class portsTab():
     def __init__(self, root):
