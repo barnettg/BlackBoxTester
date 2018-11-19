@@ -65,9 +65,9 @@ class ViewBaseAbstract(ABC):
 
 
     #### Scripts Tab
-    @abstractmethod
-    def setTabScriptDebugButtonCall(self, method):
-        pass
+    #@abstractmethod
+    #def setTabScriptDebugButtonCall(self, method):
+    #    pass
 
     @abstractmethod
     def setTabScriptEditButtonCall(self, method):
@@ -120,10 +120,117 @@ class ViewBaseAbstract(ABC):
     def setTabProjShowProjSettingsButtonCall(self,method):
         pass
 
+    #@abstractmethod
+    #def setTabProjSelectEditorButtonCall(self,method):
+    #    pass
+
+    #### Notifications tab
     @abstractmethod
-    def setTabProjSelectEditorButtonCall(self,method):
+    def set_tab_notifications_cb_email_enable(self, enable):
         pass
 
+    @abstractmethod
+    def get_tab_notifications_cb_email_enable(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_cb_email_attach_report(self, enable):
+        pass
+
+    @abstractmethod
+    def get_tab_notifications_cb_attach_report(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_text_email_addresses(self, value):
+        pass
+
+    @abstractmethod
+    def get_tab_notifications_text_email_addresses(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_text_email_subject(self, value):
+        pass
+
+    @abstractmethod
+    def get_tab_notifications_text_email_subject(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_text_email_smpt_host(self, value):
+        pass
+
+    @abstractmethod
+    def get_tab_notifications_text_email_smpt_host(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_text_email_port(self, value):
+        pass
+
+    @abstractmethod
+    def get_tab_notifications_text_email_port(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_text_email_from_address(self, value):
+        pass
+
+    @abstractmethod
+    def get_tab_notifications_text_email_from_address(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_test_email_button_call(self, method):
+        pass
+
+    #text ---
+    @abstractmethod
+    def set_tab_notifications_cb_texting_enable(self, value):
+        pass
+
+    @abstractmethod
+    def get_tab_notifications_cb_texting_enable(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_entry_texting_phonenumbers(self, value):
+        pass
+
+    @abstractmethod
+    def get_tab_notifications_entry_texting_phonenumbers(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_entry_texting_account_sid(self, value):
+        pass
+
+    @abstractmethod
+    def get_tab_notifications_entry_texting_account_sid(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_entry_texting_account_token(self, value):
+        pass
+
+    @abstractmethod
+    def get_tab_notifications_entry_texting_account_token(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_entry_texting_from_number(self, value):
+        pass
+
+    @abstractmethod
+    def get_tab_notifications_entry_texting_from_number(self):
+        pass
+
+    @abstractmethod
+    def set_tab_notifications_test_texting_button_call(self, method):
+        pass
+
+    #### misc -----
     @abstractmethod
     def setMessagingMethod(self, method):
         pass

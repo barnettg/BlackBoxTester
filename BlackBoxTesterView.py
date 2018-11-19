@@ -104,8 +104,8 @@ class View(ViewBaseAbstract):
         self.menus.set_menu_about_manual_callback(method)
 
     #### Scripts Tab
-    def setTabScriptDebugButtonCall(self, method):
-        self.centerPanel.scriptstab.SetOpenEditorButtonCallback(method)
+    #def setTabScriptDebugButtonCall(self, method):
+    #    self.centerPanel.scriptstab.SetOpenEditorButtonCallback(method)
 
     def setTabScriptEditButtonCall(self, method):
         self.centerPanel.scriptstab.SetEditConfigButtonCallback(method)
@@ -146,12 +146,93 @@ class View(ViewBaseAbstract):
     def setTabProjShowProjSettingsButtonCall(self,method):
         self.centerPanel.projectSettings_tab.SetShowProjSettingsButtonCallback(method)
 
-    def setTabProjSelectEditorButtonCall(self,method):
-        self.centerPanel.projectSettings_tab.SetSelEditorButtonCallback(method)
+    #def setTabProjSelectEditorButtonCall(self,method):
+    #    self.centerPanel.projectSettings_tab.SetSelEditorButtonCallback(method)
 
     def setMessagingMethod(self, method):
         self.menus.menuMessaging = method
 
+
+    #### Notifications tab
+    def set_tab_notifications_cb_email_enable(self, enable):
+        self.centerPanel.notifications_tab.set_email_enable_checkbox(enable)
+
+    def get_tab_notifications_cb_email_enable(self):
+        return self.centerPanel.notifications_tab.get_email_checkbox_status()
+
+    def set_tab_notifications_cb_email_attach_report(self, enable):
+        self.centerPanel.notifications_tab.set_email_attach_report_checkbox(enable)
+
+    def get_tab_notifications_cb_attach_report(self):
+        return self.centerPanel.notifications_tab.get_email_attach_report_checkbox_status()
+
+    def set_tab_notifications_text_email_addresses(self, value):
+        self.centerPanel.notifications_tab.set_email_addresses(value)
+
+    def get_tab_notifications_text_email_addresses(self):
+        return self.centerPanel.notifications_tab.get_email_addresses()
+
+    def set_tab_notifications_text_email_subject(self, value):
+        self.centerPanel.notifications_tab.set_email_subject(value)
+
+    def get_tab_notifications_text_email_subject(self):
+        return self.centerPanel.notifications_tab.get_email_subject()
+
+    def set_tab_notifications_text_email_smpt_host(self, value):
+        self.centerPanel.notifications_tab.set_email_host(value)
+
+    def get_tab_notifications_text_email_smpt_host(self):
+        return self.centerPanel.notifications_tab.get_email_host()
+
+    def set_tab_notifications_text_email_port(self, value):
+        self.centerPanel.notifications_tab.set_email_port(value)
+
+    def get_tab_notifications_text_email_port(self):
+        return self.centerPanel.notifications_tab.get_email_port()
+
+    def set_tab_notifications_text_email_from_address(self, value):
+        self.centerPanel.notifications_tab.set_email_from_address(value)
+
+    def get_tab_notifications_text_email_from_address(self):
+        return self.centerPanel.notifications_tab.get_email_from_address()
+
+    def set_tab_notifications_test_email_button_call(self, method):
+        self.centerPanel.notifications_tab.set_test_email_button_callback(method)
+
+    # subtab  text
+    def set_tab_notifications_cb_texting_enable(self, value):
+        self.centerPanel.notifications_tab.set_texting_enable_checkbox(value)
+
+    def get_tab_notifications_cb_texting_enable(self):
+        return self.centerPanel.notifications_tab.get_texting_checkbox_status()
+
+    def set_tab_notifications_entry_texting_phonenumbers(self, value):
+        self.centerPanel.notifications_tab.set_texting_phone_numbers(value)
+
+    def get_tab_notifications_entry_texting_phonenumbers(self):
+        return self.centerPanel.notifications_tab.get_texting_phone_numbers()
+
+    def set_tab_notifications_entry_texting_account_sid(self, value):
+        return self.centerPanel.notifications_tab.set_texting_account_sid(value)
+
+    def get_tab_notifications_entry_texting_account_sid(self):
+        return self.centerPanel.notifications_tab.get_texting_account_sid()
+
+    def set_tab_notifications_entry_texting_account_token(self, value):
+        self.centerPanel.notifications_tab.set_texting_auth_token(value)
+
+    def get_tab_notifications_entry_texting_account_token(self):
+        return self.centerPanel.notifications_tab.get_texting_auth_token()
+
+    def set_tab_notifications_entry_texting_from_number(self, value):
+        self.centerPanel.notifications_tab.set_texting_from_number(value)
+
+    def get_tab_notifications_entry_texting_from_number(self):
+        return self.centerPanel.notifications_tab.get_texting_from_number()
+
+    def set_tab_notifications_test_texting_button_call(self, method):
+        self.centerPanel.notifications_tab.set_test_texting_button_callback(method)
+    #--------------------------- end notifications tab ---------------------------
 
 class Menus():
     def __init__(self, root):
@@ -435,9 +516,9 @@ class scriptsTab():
 
         # add button frame
         bottomFrame = ttk.Frame(tab, relief="sunken", borderwidth=5)#
-        self.OpenEditorBtn = Tk.Button(bottomFrame, text="Edit/Debug Terminal ",
-                                       width=20, command=self.OpenEditorButton)
-        self.OpenEditorBtn.pack(anchor = Tk.W)
+        #self.OpenEditorBtn = Tk.Button(bottomFrame, text="Edit/Debug Terminal ",
+        #                               width=20, command=self.OpenEditorButton)
+        #self.OpenEditorBtn.pack(anchor = Tk.W)
         self.EditConfigurationBtn = Tk.Button(bottomFrame, text="Edit Configuration ",
                                               width=20, command=self.EditConfigButton)
         self.EditConfigurationBtn.pack(anchor = Tk.W)
@@ -445,7 +526,7 @@ class scriptsTab():
         bottomFrame.pack(side=Tk.RIGHT, expand=Tk.YES, fill=Tk.X, anchor=Tk.E)
 
         root.add(tab, text='Scripts')
-        self.openEditorButtonCallback = None
+        #self.openEditorButtonCallback = None
         self.editConfigButtonCallback = None
 
     def OnDoubleClick(self, event):
@@ -495,17 +576,17 @@ class scriptsTab():
 
         #----------------------------------------------------------------------------
 
-    def SetOpenEditorButtonCallback(self, method):
-        self.openEditorButtonCallback = method
+    #def SetOpenEditorButtonCallback(self, method):
+    #    self.openEditorButtonCallback = method
 
     def SetEditConfigButtonCallback(self, method):
         self.editConfigButtonCallback = method
 
-    def OpenEditorButton(self):
-        if self.openEditorButtonCallback is not None:
-            self.openEditorButtonCallback()
-        else:
-            print("Open Editor button method not set")
+    #def OpenEditorButton(self):
+    #    if self.openEditorButtonCallback is not None:
+    #        self.openEditorButtonCallback()
+    #    else:
+    #        print("Open Editor button method not set")
 
     def EditConfigButton(self):
         if self.editConfigButtonCallback is not None:
@@ -523,16 +604,17 @@ class NotificationsTab():
         panelEmail = ttk.Frame(self.notebook )
         self.notebook.add(panelEmail, text='Email', compound=Tk.TOP)
 
-        self.var_include = Tk.IntVar()
-        self.check_include = Tk.Checkbutton(panelEmail, text="Include Email Report", variable=self.var_include)
+        self.var_email_include = Tk.BooleanVar()
+        self.check_include = Tk.Checkbutton(panelEmail, text="Include Email Report", variable=self.var_email_include)
         self.check_include.pack(side=Tk.TOP, anchor=Tk.NW, padx=5, pady=5)
 
-        self.var_report = Tk.IntVar()
-        self.check_report = Tk.Checkbutton(panelEmail, text="Attach Report Files", variable=self.var_report)
+        self.var_email_report = Tk.BooleanVar()
+        self.check_report = Tk.Checkbutton(panelEmail, text="Attach Report Files", variable=self.var_email_report)
         self.check_report.pack(side=Tk.TOP, anchor=Tk.NW, padx=5, pady=5)
 
         emailAddressesLabel = Tk.Label(panelEmail, text="Email Address(es) (; seperated) ")
-        self.emailToAddressTextBox = Tk.Text(panelEmail,height=1, width=60, padx=5)
+        self.var_email_address = Tk.StringVar()
+        self.emailToAddressTextBox = Tk.Entry(panelEmail, width=60, textvariable=self.var_email_address)
         emailAddressesLabel.pack(side=Tk.TOP, anchor=Tk.NW)
         self.emailToAddressTextBox.pack(side=Tk.TOP, anchor=Tk.NW, padx=5) #, fill=Tk.X
 
@@ -540,7 +622,8 @@ class NotificationsTab():
         dummySpace.pack(side=Tk.TOP, anchor=Tk.NW)
 
         emailSubjectLabel = Tk.Label(panelEmail, text="Subject")
-        self.emailSubjectTextBox = Tk.Text(panelEmail,height=1, width=60, padx=5)
+        self.var_email_subject = Tk.StringVar()
+        self.emailSubjectTextBox = Tk.Entry(panelEmail, width=60, textvariable=self.var_email_subject)
         emailSubjectLabel.pack(side=Tk.TOP, anchor=Tk.NW)
         self.emailSubjectTextBox.pack(side=Tk.TOP, anchor=Tk.NW, padx=5) #, fill=Tk.X
 
@@ -548,7 +631,8 @@ class NotificationsTab():
         dummySpace1.pack(side=Tk.TOP, anchor=Tk.NW)
 
         emailHostLabel = Tk.Label(panelEmail, text="SMPT Host")
-        self.emailHostTextBox = Tk.Text(panelEmail,height=1, width=40, padx=5)
+        self.var_email_host = Tk.StringVar()
+        self.emailHostTextBox = Tk.Entry(panelEmail, width=40, textvariable=self.var_email_host)
         emailHostLabel.pack(side=Tk.TOP, anchor=Tk.NW)
         self.emailHostTextBox.pack(side=Tk.TOP, anchor=Tk.NW, padx=5) #, fill=Tk.X
 
@@ -556,7 +640,8 @@ class NotificationsTab():
         dummySpace2.pack(side=Tk.TOP, anchor=Tk.NW)
 
         emailPortLabel = Tk.Label(panelEmail, text="Port")
-        self.emailPortTextBox = Tk.Text(panelEmail,height=1, width=20, padx=5)
+        self.var_email_port = Tk.StringVar()
+        self.emailPortTextBox = Tk.Entry(panelEmail, width=20, textvariable=self.var_email_port)
         emailPortLabel.pack(side=Tk.TOP, anchor=Tk.NW)
         self.emailPortTextBox.pack(side=Tk.TOP, anchor=Tk.NW, padx=5)
 
@@ -564,7 +649,8 @@ class NotificationsTab():
         dummySpace3.pack(side=Tk.TOP, anchor=Tk.NW)
 
         emailFromLabel = Tk.Label(panelEmail, text="From Address")
-        self.emailFromTextBox = Tk.Text(panelEmail,height=1, width=40, padx=5)
+        self.var_email_from_address = Tk.StringVar()
+        self.emailFromTextBox = Tk.Entry(panelEmail, width=40, textvariable=self.var_email_from_address)
         emailFromLabel.pack(side=Tk.TOP, anchor=Tk.NW)
         self.emailFromTextBox.pack(side=Tk.TOP, anchor=Tk.NW, padx=5) #, fill=Tk.X
 
@@ -579,12 +665,13 @@ class NotificationsTab():
         panelText = ttk.Frame(self.notebook )
         self.notebook.add(panelText, text='Text', compound=Tk.TOP)
 
-        self.var_include = Tk.IntVar()
-        self.check_includeText = Tk.Checkbutton(panelText, text="Include Text", variable=self.var_include)
+        self.var_txt_include = Tk.BooleanVar()
+        self.check_includeText = Tk.Checkbutton(panelText, text="Include Text", variable=self.var_txt_include)
         self.check_includeText.pack(side=Tk.TOP, anchor=Tk.NW, padx=5, pady=5)
 
         textNumbersLabel = Tk.Label(panelText, text="Phone numbers (; seperated) ")
-        self.textNumTextBox = Tk.Text(panelText,height=1, width=60, padx=5)
+        self.var_texting_num = Tk.StringVar()
+        self.textNumTextBox = Tk.Entry(panelText, width=60, textvariable=self.var_texting_num)
         textNumbersLabel.pack(side=Tk.TOP, anchor=Tk.NW)
         self.textNumTextBox.pack(side=Tk.TOP, anchor=Tk.NW, padx=5) #, fill=Tk.X
 
@@ -592,7 +679,8 @@ class NotificationsTab():
         dummySpaceT0.pack(side=Tk.TOP, anchor=Tk.NW)
 
         textAccountSidLabel = Tk.Label(panelText, text="Account SID")
-        self.textAccountSidTextBox = Tk.Text(panelText,height=1, width=60, padx=5)
+        self.var_texting_sid = Tk.StringVar()
+        self.textAccountSidTextBox = Tk.Entry(panelText, width=60, textvariable=self.var_texting_sid)
         textAccountSidLabel.pack(side=Tk.TOP, anchor=Tk.NW)
         self.textAccountSidTextBox.pack(side=Tk.TOP, anchor=Tk.NW, padx=5) #, fill=Tk.X
 
@@ -600,7 +688,8 @@ class NotificationsTab():
         dummySpaceT1.pack(side=Tk.TOP, anchor=Tk.NW)
 
         textAuthTokenLabel = Tk.Label(panelText, text="Authentication Token")
-        self.textAuthTokenTextBox = Tk.Text(panelText,height=1, width=40, padx=5)
+        self.var_texting_auth_token = Tk.StringVar()
+        self.textAuthTokenTextBox = Tk.Entry(panelText, width=40, textvariable=self.var_texting_auth_token)
         textAuthTokenLabel.pack(side=Tk.TOP, anchor=Tk.NW)
         self.textAuthTokenTextBox.pack(side=Tk.TOP, anchor=Tk.NW, padx=5) #, fill=Tk.X
 
@@ -608,25 +697,114 @@ class NotificationsTab():
         dummySpaceT2.pack(side=Tk.TOP, anchor=Tk.NW)
 
         textFromLabel = Tk.Label(panelText, text="From Number")
-        self.textFromTextBox = Tk.Text(panelText,height=1, width=20, padx=5)
+        self.var_texting_from_number = Tk.StringVar()
+        self.textFromTextBox = Tk.Entry(panelText, width=20, textvariable=self.var_texting_from_number)
         textFromLabel.pack(side=Tk.TOP, anchor=Tk.NW)
         self.textFromTextBox.pack(side=Tk.TOP, anchor=Tk.NW, padx=5)
 
         dummySpaceT3  = Tk.Label(panelText, text=" ")
         dummySpaceT3.pack(side=Tk.TOP, anchor=Tk.NW)
 
-        self.testTextBtn = Tk.Button(panelText, text="Test Email", command=self.TestTextButton)
+        self.testTextBtn = Tk.Button(panelText, text="Test Text", command=self.TestTextingButton)
         self.testTextBtn.pack(side=Tk.TOP, anchor=Tk.NW, padx=5, pady=5)
-
 
         self.notebook.pack(side=Tk.RIGHT, expand=Tk.YES, fill=Tk.BOTH, anchor =Tk.NW)
         root.add(tab, text='Notifications')
+        self.test_email_button_callback = None
+        self.test_texting_button_callback = None
+
+    def set_test_email_button_callback(self, method):
+        self.test_email_button_callback = method
+
+    def set_test_texting_button_callback(self, method):
+        self.test_texting_button_callback = method
 
     def TestEmailButton(self):
         print("Test Email Button")
+        if self.test_email_button_callback is not None:
+            self.test_email_button_callback()
+        else:
+            print("Edit Configuration button method not set")
 
-    def TestTextButton(self):
+    def TestTextingButton(self):
         print("Test Text Button")
+        if self.test_texting_button_callback is not None:
+            self.test_texting_button_callback()
+        else:
+            print("Edit Configuration button method not set")
+
+    def set_email_enable_checkbox(self, val):
+        self.var_email_include.set(val)
+
+    def get_email_checkbox_status(self):
+        return self.var_email_include.get()
+
+    def set_email_attach_report_checkbox(self, val):
+        self.var_email_report.set(val)
+
+    def get_email_attach_report_checkbox_status(self):
+        return self.var_email_report.get()
+
+    def set_email_addresses(self, value):
+        self.var_email_address.set(value)
+
+    def get_email_addresses(self):
+        return self.var_email_address.get()
+
+    def set_email_subject(self, value):
+        self.var_email_subject.set(value)
+
+    def get_email_subject(self):
+        return self.var_email_subject.get()
+
+    def set_email_host(self, value):
+        self.var_email_host.set(value)
+
+    def get_email_host(self):
+        return self.var_email_host.get()
+
+    def set_email_port(self, value):
+        self.var_email_port.set(value)
+
+    def get_email_port(self):
+        return self.var_email_port.get()
+
+    def set_email_from_address(self, value):
+        self.var_email_from_address.set(value)
+
+    def get_email_from_address(self):
+        return self.var_email_from_address.get()
+
+    # texting methods
+    def set_texting_enable_checkbox(self, val):
+        self.var_txt_include.set(val)
+
+    def get_texting_checkbox_status(self):
+        return self.var_txt_include.get()
+
+    def set_texting_phone_numbers(self, value):
+        self.var_texting_num.set(value)
+
+    def get_texting_phone_numbers(self):
+        return self.var_texting_num.get()
+
+    def set_texting_account_sid(self, value):
+        self.var_texting_sid.set(value)
+
+    def get_texting_account_sid(self):
+        return self.var_texting_sid.get()
+
+    def set_texting_auth_token(self, value):
+        self.var_texting_auth_token.set(value)
+
+    def get_texting_auth_token(self):
+        return self.var_texting_auth_token.get()
+
+    def set_texting_from_number(self, value):
+        self.var_texting_from_number.set(value)
+
+    def get_texting_from_number(self):
+        return self.var_texting_from_number.get()
 
 class ProjectSettingsTab():
     def __init__(self, root):
@@ -645,12 +823,12 @@ class ProjectSettingsTab():
                                              width=button_width, command=self.ShowProjSettingsButton)
         self.showProjSettingsBtn.pack(side=Tk.TOP, anchor =Tk.W, padx=5, pady=5)
 
-        self.selectEditorBtn = Tk.Button(tab, text="Select Editor",
-                                         width=button_width, command=self.SelectEditorButton)
-        self.selectEditorBtn.pack(side=Tk.TOP, anchor =Tk.W, padx=5, pady=5)
+        #self.selectEditorBtn = Tk.Button(tab, text="Select Editor",
+        #                                 width=button_width, command=self.SelectEditorButton)
+        #self.selectEditorBtn.pack(side=Tk.TOP, anchor =Tk.W, padx=5, pady=5)
 
-        self.editorTextBox = Tk.Text(tab,height=1)
-        self.editorTextBox.pack(side=Tk.TOP, anchor=Tk.NW, padx=5, pady=5, expand=Tk.YES)
+        #self.editorTextBox = Tk.Text(tab,height=1)
+        #self.editorTextBox.pack(side=Tk.TOP, anchor=Tk.NW, padx=5, pady=5, expand=Tk.YES)
 
         root.add(tab, text='Project Settings')
         self.openDirButtonCallback = None
@@ -667,8 +845,8 @@ class ProjectSettingsTab():
     def SetShowProjSettingsButtonCallback(self, method):
         self.showProjSettingsButtonCallback = method
 
-    def SetSelEditorButtonCallback(self, method):
-        self.selectEditorButtonCallback = method
+    #def SetSelEditorButtonCallback(self, method):
+    #    self.selectEditorButtonCallback = method
 
     def OpenDirectoryButton(self):
         if self.openDirButtonCallback is not None:
@@ -688,11 +866,11 @@ class ProjectSettingsTab():
         else:
             print("Show Proj Settings  button method not set")
 
-    def SelectEditorButton(self):
-        if self.selectEditorButtonCallback is not None:
-            self.selectEditorButtonCallback()
-        else:
-            print("Select Editor button method not set")
+    #def SelectEditorButton(self):
+    #    if self.selectEditorButtonCallback is not None:
+    #        self.selectEditorButtonCallback()
+    #    else:
+    #        print("Select Editor button method not set")
 
 class PluginsTab():
     def __init__(self, root):

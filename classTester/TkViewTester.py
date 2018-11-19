@@ -77,6 +77,11 @@ def menu_about_about():
 def menu_about_manual():
     print("menu_about_manual got a call")
 
+def method_for_email_test():
+    print("email test")
+
+def method_for_texting_test():
+    print("texting test")
 #main window --------------------------------------
 view = BlackBoxTesterView.View()
 view.setConfigurationLabel("This sets the configuration label")
@@ -85,8 +90,9 @@ view.setStatusLabel("This sets the status label")
 
 
 #TAB scripts ----------------------------
-view.setTabScriptDebugButtonCall(scriptTab_debugCallback)
+#view.setTabScriptDebugButtonCall(scriptTab_debugCallback) # removed
 view.setTabScriptEditButtonCall(scriptTab_editCallback)
+# ------ > need to load scripts in list view !!!!!!!!!!!!!
 
 #TAB ports ----------------------------
 view.setTabPortsAddButtonCall(communicationsTab_addCallback)
@@ -101,9 +107,64 @@ view.setTabPluginsListbox(None) ## to do-> add list box data
 
 #TAB projects ----------------------------
 view.setTabProjOpenDirectoryButtonCall(projSetTab_openDirCallback)
-view.setTabProjSelectEditorButtonCall(projSetTab_selectEditorCallback)
+#view.setTabProjSelectEditorButtonCall(projSetTab_selectEditorCallback) # removed
 view.setTabProjShowConfSettingsButtonCall(projSetTab_showConfSettingsCallback)
 view.setTabProjShowProjSettingsButtonCall(projSetTab_showProjSettingsCallback)
+
+#TAB pnotifications ----------------------------
+#email ---
+view.set_tab_notifications_cb_email_enable(True)
+result = view.get_tab_notifications_cb_email_enable()
+print("email tab: cb_email_enable- " + str(result))
+
+view.set_tab_notifications_cb_email_attach_report(True)
+result = view.get_tab_notifications_cb_attach_report()
+print("email tab: _cb_email_attach_report- " + str(result))
+
+view.set_tab_notifications_text_email_addresses("address1@yahoo.com")
+result = view.get_tab_notifications_text_email_addresses()
+print("email tab: text_email_addresses- " + str(result))
+
+view.set_tab_notifications_text_email_subject("test results")
+result = view.get_tab_notifications_text_email_subject()
+print("email tab: text_email_subject- " + str(result))
+
+view.set_tab_notifications_text_email_smpt_host("smpt host")
+result = view.get_tab_notifications_text_email_smpt_host()
+print("email tab: text_email_smpt_host- " + str(result))
+
+view.set_tab_notifications_text_email_port("email port")
+result = view.get_tab_notifications_text_email_port()
+print("email tab: text_email_portt- " + str(result))
+
+view.set_tab_notifications_text_email_from_address("from1@yahoo.com")
+result = view.get_tab_notifications_text_email_from_address()
+print("email tab: text_email_from_address- " + str(result))
+
+view.set_tab_notifications_test_email_button_call(method_for_email_test)
+
+#text ---
+view.set_tab_notifications_cb_texting_enable(True)
+result = view.get_tab_notifications_cb_texting_enable()
+print("text tab: cb_texting_enable " + str(result))
+
+view.set_tab_notifications_entry_texting_phonenumbers("1-123-456-7890")
+result = view.get_tab_notifications_entry_texting_phonenumbers()
+print(str(result))
+
+view.set_tab_notifications_entry_texting_account_sid("account sid")
+result = view.get_tab_notifications_entry_texting_account_sid()
+print(str(result))
+
+view.set_tab_notifications_entry_texting_account_token("token")
+result = view.get_tab_notifications_entry_texting_account_token()
+print(str(result))
+
+view.set_tab_notifications_entry_texting_from_number("1-987-654-3210")
+result = view.get_tab_notifications_entry_texting_from_number()
+print(str(result))
+
+view.set_tab_notifications_test_texting_button_call(method_for_texting_test)
 
 #Menu --------------------------------------
 view.setMenuFileExitCall(menuFileExit)
