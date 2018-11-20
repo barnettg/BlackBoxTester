@@ -1077,29 +1077,34 @@ class TraceComTab():
 class portsTab():
     def __init__(self, root):
         tab = ttk.Frame(root, relief="sunken", borderwidth=1, width=100, height=100)
-
+        tab.columnconfigure(0, weight=1)
         self.portAddBtn = Tk.Button(tab, text="Add", width=15, command=self.AddButton)
-        self.portAddBtn.pack(side=Tk.TOP, anchor =Tk.W, padx=5, pady=5)
+        #self.portAddBtn.pack(side=Tk.TOP, anchor =Tk.W, padx=5, pady=5)
+        self.portAddBtn.grid(row=0, column=0, sticky=Tk.W, padx=5, pady=5)
 
-        listbox_frame = ttk.Frame(tab, relief="sunken", borderwidth=4, width=100, height=100)
+        self.portEditBtn = Tk.Button(tab, text="Edit", width=15, command=self.EditButton)
+        #self.portEditBtn.pack(side=Tk.TOP, anchor =Tk.W, padx=5, pady=5)
+        self.portEditBtn.grid(row=2, column=0, sticky=Tk.W, padx=5, pady=5)
+
+        self.portDelBtn = Tk.Button(tab, text="Remove", width=15, command=self.RemoveButton)
+        #self.portDelBtn.pack(side="top", anchor =Tk.W, padx=5, pady=5)
+        self.portDelBtn.grid(row=3, column=0, sticky=Tk.W, padx=5, pady=5)
+
+        listbox_frame = ttk.Frame(tab, borderwidth=0, width=100, height=100)
         self.ports = Tk.Listbox(listbox_frame)#, height=5, width=60)
-
+        listbox_frame.columnconfigure(0, weight=1)
         self.scroll_bar = Tk.Scrollbar(listbox_frame, orient=Tk.VERTICAL)
         self.ports.configure(yscrollcommand = self.scroll_bar.set)
         self.scroll_bar.config(command=self.ports.yview)
 
-        self.ports.grid(row=0, column=0, columnspan=10) #,sticky=Tk.N+Tk.S+Tk.E)
-        self.scroll_bar.grid(row=0, column=10, sticky=Tk.N+Tk.S+Tk.E)
+        self.ports.grid(row=0, column=0, sticky=(Tk.N, Tk.S, Tk.E, Tk.W)) #
+        self.scroll_bar.grid(row=0, column=1, sticky=Tk.N+Tk.S+Tk.E)
 
         #self.ports.pack(side=Tk.TOP, expand=Tk.NO, anchor =Tk.W, padx=10, pady=5)
         #self.scroll_bar.pack( side ='right', fill ='y')
-        listbox_frame.pack(side=Tk.TOP, fill=Tk.X, expand=Tk.YES, anchor =Tk.W, padx=10, pady=5)
+        #listbox_frame.pack(side=Tk.TOP, fill=Tk.X, expand=Tk.YES, anchor =Tk.NW, padx=10, pady=5)
+        listbox_frame.grid(row=1, column=0, sticky=Tk.N+Tk.S+Tk.E+Tk.W, padx=5, pady=5)
 
-        self.portEditBtn = Tk.Button(tab, text="Edit", width=15, command=self.EditButton)
-        self.portEditBtn.pack(side="top", anchor =Tk.W, padx=5, pady=5)
-
-        self.portDelBtn = Tk.Button(tab, text="Remove", width=15, command=self.RemoveButton)
-        self.portDelBtn.pack(side="top", anchor =Tk.W, padx=5, pady=5)
 
         root.add(tab, text='Communications')
         self.addButtonCallback = None

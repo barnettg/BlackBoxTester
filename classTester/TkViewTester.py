@@ -9,7 +9,12 @@ available_addin_list = ["line 1", "line 2","line 3", "line 4","line 5", "line 6"
 selected_addin_list = ["line 1", "line 2","line 3", "line 4"]
 
 available_ports_list = ["COM1", "COM2", "COM3"]
-selected_ports_list = ["COM1 9600 8N1", "10.12.34.56 port:23","COM2 9600 8N1", "10.12.34.56 port:24","COM3 9600 8N1", "10.12.34.56 port:25"]
+selected_ports_list = [" COM1 9600 8N1",
+                       " 10.12.34.56 port:23",
+                       " COM2 9600 8N1",
+                       " 10.12.34.56 port:24",
+                       " COM3 9600 8N1",
+                       " 10.12.34.56 port:25"]
 
 def scriptTab_debugCallback():
     print("scriptTab_debugCallback got a call")
