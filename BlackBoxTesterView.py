@@ -123,8 +123,11 @@ class View(ViewBaseAbstract):
     def setTabPortsRemoveButtonCall(self,method):
         self.centerPanel.ports_tab.SetRemoveButtonCallback(method)
 
-    def setTabPortsListbox(self, lb):
-        pass
+    def setTabPortsListbox_available(self, lb):
+        self.centerPanel.ports_tab.set_ports_available(lb)
+
+    def setTabPortsListbox_selected(self, lb):
+        self.centerPanel.ports_tab.set_ports_selected(lb)
 
     #### Plugins Tab
     def setTabPluginsAddButtonCall(self,method):
@@ -133,8 +136,11 @@ class View(ViewBaseAbstract):
     def setTabPluginsRemoveButtonCall(self,method):
         self.centerPanel.plugins_tab.SetRemoveButtonCallback(method)
 
-    def setTabPluginsListbox(self, lb):
-        pass
+    def setTabPluginsListbox_available(self, lb):
+        self.centerPanel.plugins_tab.set_available_plugins(lb)
+
+    def setTabPluginsListbox_selected(self, lb):
+        self.centerPanel.plugins_tab.set_selected_plugins(lb)
 
     #### Project Settings Tab
     def setTabProjOpenDirectoryButtonCall(self,method):
@@ -233,6 +239,14 @@ class View(ViewBaseAbstract):
     def set_tab_notifications_test_texting_button_call(self, method):
         self.centerPanel.notifications_tab.set_test_texting_button_callback(method)
     #--------------------------- end notifications tab ---------------------------
+
+    #### passed tab
+    def set_tab_passed_list(self, lst):
+        self.centerPanel.passed_tab.set_passed_list(lst)
+
+    #### failed tab
+    def set_tab_failed_list(self, lst):
+        self.centerPanel.failed_tab.set_failed_list(lst)
 
 class Menus():
     def __init__(self, root):
@@ -881,7 +895,12 @@ class PluginsTab():
         self.addBtn.pack(side=Tk.TOP, anchor =Tk.W, padx=5, pady=5)
 
         self.pluginsListBox = Tk.Listbox(tab, width=100, height=25)
-        self.pluginsListBox.pack(side=Tk.TOP, expand=Tk.NO, anchor =Tk.W, padx=10, pady=5)
+        #self.scroll_bar = Tk.Scrollbar(self.pluginsListBox, orient=Tk.VERTICAL)
+        #self.pluginsListBox.configure(yscrollcommand = self.scroll_bar.set)
+        #self.scroll_bar.config(command=self.pluginsListBox.yview)
+        #self.scroll_bar.pack( side ='right', fill ='y')
+
+        self.pluginsListBox.pack(side=Tk.TOP, anchor=Tk.W, padx=10, pady=5, expand=Tk.NO)
 
         self.removeBtn = Tk.Button(tab, text="Remove Plugin", width=button_width, command=self.RemoveButton)
         self.removeBtn.pack(side="top", anchor =Tk.W, padx=5, pady=5)
@@ -889,6 +908,8 @@ class PluginsTab():
         root.add(tab, text='Plugins')
         self.addButtonCallback = None
         self.removeButtonCallback = None
+        self.available_list = []
+        self.selected_list = []
 
     def SetAddButtonCallback(self, method):
         self.addButtonCallback = method
@@ -908,23 +929,59 @@ class PluginsTab():
         else:
             print("Plugin Remove Button method not set")
 
+    def set_available_plugins(self, avail):
+        self.available_list = []
+        for item in avail:
+            self.available_list.append(item)
+
+    def set_selected_plugins(self, sel):
+        self.selected_list = []
+        for item in sel:
+            self.selected_list.append(item)
+        self.pluginsListBox.delete(0, Tk.END)
+        self.pluginsListBox.insert(Tk.END, *self.selected_list)
+
 class PassedTab():
     def __init__(self, root):
         tab = ttk.Frame(root, relief="sunken", borderwidth=1, width=100, height=100)
-
         self.passed = Tk.Listbox(tab)#, width=100, height=15)
-        self.passed.pack(side=Tk.TOP, expand=Tk.YES, anchor =Tk.W, padx=5, pady=5, fill=Tk.BOTH)
+        self.scroll_bar = Tk.Scrollbar(self.passed)
+        self.passed.configure(yscrollcommand = self.scroll_bar.set)
+        self.scroll_bar.config( command = self.passed.yview)
+        self.scroll_bar.pack( side ='right', fill ='y')
 
+        self.passed.pack(side=Tk.TOP, expand=Tk.YES, anchor =Tk.W, padx=5, pady=5, fill=Tk.BOTH)
         root.add(tab, text='Passed')
+        self.passed_list = []
+
+    def set_passed_list(self, plist):
+        self.passed_list = []
+        for item in plist:
+            self.passed_list.append(item)
+        self.passed.delete(0, Tk.END)
+        self.passed.insert(Tk.END, *self.passed_list)
+
 
 class FailedTab():
     def __init__(self, root):
         tab = ttk.Frame(root, relief="sunken", borderwidth=1, width=100, height=100)
-
         self.failed = Tk.Listbox(tab)#, width=100, height=15)
-        self.failed.pack(side=Tk.TOP, expand=Tk.YES, anchor =Tk.W, padx=5, pady=5, fill=Tk.BOTH)
+        self.scroll_bar = Tk.Scrollbar(self.failed)
+        self.failed.configure(yscrollcommand = self.scroll_bar.set)
+        self.scroll_bar.config( command = self.failed.yview)
+        self.scroll_bar.pack( side ='right', fill ='y')
 
+
+        self.failed.pack(side=Tk.TOP, expand=Tk.YES, anchor =Tk.W, padx=5, pady=5, fill=Tk.BOTH)
         root.add(tab, text='Failed')
+        self.failed_list = []
+
+    def set_failed_list(self, flist):
+        self.failed_list = []
+        for item in flist:
+            self.failed_list.append(item)
+        self.failed.delete(0, Tk.END)
+        self.failed.insert(Tk.END, *self.failed_list)
 
 class ProgressTab():
     def __init__(self, root):
@@ -1024,8 +1081,19 @@ class portsTab():
         self.portAddBtn = Tk.Button(tab, text="Add", width=15, command=self.AddButton)
         self.portAddBtn.pack(side=Tk.TOP, anchor =Tk.W, padx=5, pady=5)
 
-        self.ports = Tk.Listbox(tab, width=100, height=15)
-        self.ports.pack(side=Tk.TOP, expand=Tk.NO, anchor =Tk.W, padx=10, pady=5)
+        listbox_frame = ttk.Frame(tab, relief="sunken", borderwidth=4, width=100, height=100)
+        self.ports = Tk.Listbox(listbox_frame)#, height=5, width=60)
+
+        self.scroll_bar = Tk.Scrollbar(listbox_frame, orient=Tk.VERTICAL)
+        self.ports.configure(yscrollcommand = self.scroll_bar.set)
+        self.scroll_bar.config(command=self.ports.yview)
+
+        self.ports.grid(row=0, column=0, columnspan=10) #,sticky=Tk.N+Tk.S+Tk.E)
+        self.scroll_bar.grid(row=0, column=10, sticky=Tk.N+Tk.S+Tk.E)
+
+        #self.ports.pack(side=Tk.TOP, expand=Tk.NO, anchor =Tk.W, padx=10, pady=5)
+        #self.scroll_bar.pack( side ='right', fill ='y')
+        listbox_frame.pack(side=Tk.TOP, fill=Tk.X, expand=Tk.YES, anchor =Tk.W, padx=10, pady=5)
 
         self.portEditBtn = Tk.Button(tab, text="Edit", width=15, command=self.EditButton)
         self.portEditBtn.pack(side="top", anchor =Tk.W, padx=5, pady=5)
@@ -1037,7 +1105,20 @@ class portsTab():
         self.addButtonCallback = None
         self.editButtonCallback = None
         self.removeButtonCallback = None
+        self.available_ports = []
+        self.selected_ports = []
 
+    def set_ports_available(self, avail):
+        self.available_ports = []
+        for item in avail:
+            self.available_ports.append(item)
+
+    def set_ports_selected(self, sel):
+        self.selected_ports = []
+        for item in sel:
+            self.selected_ports.append(item)
+        self.ports.delete(0, Tk.END)
+        self.ports.insert( Tk.END, *self.selected_ports)
 
     def SetAddButtonCallback(self, method):
         self.addButtonCallback = method

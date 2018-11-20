@@ -5,6 +5,11 @@ import BlackBoxTesterView
 
 print("Python Version {}.{}".format(sys.version_info[0],sys.version_info[1]))
 
+available_addin_list = ["line 1", "line 2","line 3", "line 4","line 5", "line 6", "line 7"]
+selected_addin_list = ["line 1", "line 2","line 3", "line 4"]
+
+available_ports_list = ["COM1", "COM2", "COM3"]
+selected_ports_list = ["COM1 9600 8N1", "10.12.34.56 port:23","COM2 9600 8N1", "10.12.34.56 port:24","COM3 9600 8N1", "10.12.34.56 port:25"]
 
 def scriptTab_debugCallback():
     print("scriptTab_debugCallback got a call")
@@ -98,12 +103,18 @@ view.setTabScriptEditButtonCall(scriptTab_editCallback)
 view.setTabPortsAddButtonCall(communicationsTab_addCallback)
 view.setTabPortsEditButtonCall(communicationsTab_editCallback)
 view.setTabPortsRemoveButtonCall(communicationsTab_removeCallback)
-view.setTabPortsListbox(None) ## to do-> add list box data
+
+#available_ports_list = ["COM1", "COM2", "COM3"]
+#selected_ports_list = ["COM1 9600 8N1", "10.12.34.56 port:23"]
+view.setTabPortsListbox_available(available_ports_list)
+view.setTabPortsListbox_selected(selected_ports_list)
+view.setTabPortsListbox_selected(selected_ports_list)
 
 #TAB plugins----------------------------
 view.setTabPluginsAddButtonCall(pluginsTab_addCallback)
 view.setTabPluginsRemoveButtonCall (pluginsTab_removeCallback)
-view.setTabPluginsListbox(None) ## to do-> add list box data
+view.setTabPluginsListbox_available(available_addin_list)
+view.setTabPluginsListbox_selected(selected_addin_list)
 
 #TAB projects ----------------------------
 view.setTabProjOpenDirectoryButtonCall(projSetTab_openDirCallback)
@@ -143,7 +154,7 @@ print("email tab: text_email_from_address- " + str(result))
 
 view.set_tab_notifications_test_email_button_call(method_for_email_test)
 
-#text ---
+#texting ---
 view.set_tab_notifications_cb_texting_enable(True)
 result = view.get_tab_notifications_cb_texting_enable()
 print("text tab: cb_texting_enable " + str(result))
@@ -165,6 +176,19 @@ result = view.get_tab_notifications_entry_texting_from_number()
 print(str(result))
 
 view.set_tab_notifications_test_texting_button_call(method_for_texting_test)
+
+# tab passed
+passed_list = []
+for index in range(0,40):
+    passed_list.append("test passed " + str(index))
+view.set_tab_passed_list(passed_list)
+
+# tab failed
+failed_list = []
+for index in range(0,40):
+    failed_list.append("test failed " + str(index))
+view.set_tab_failed_list(failed_list)
+
 
 #Menu --------------------------------------
 view.setMenuFileExitCall(menuFileExit)

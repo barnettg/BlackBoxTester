@@ -1,4 +1,32 @@
 to do:
+
+
+
+need scroll bar for plugins and ports listbox
+19-Nov-2018
+    added scroll bar for passed, failed listbox
+    GUI test for tabs: plugins listbox, communications listbox, passed listbox, failed listbox
+
+18-MAY-2018
+    Able to run a script test on TrafficLights using serial port with model_test1
+
+17-DEC-2017
+    able to pass helper class and run scripts
+
+25-Nov-2017
+  ScriptManager->read_configuration_file method will write defaults if file not exist
+
+
+-----------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
     model_test1.py
         include serial port and ethernet port in test connection. Run TrafficLights.py in each mode to try.
         get available communication ports
@@ -115,14 +143,6 @@ fallback_name: Dict[str, str] = {
 
 
 
-18-MAY-2018
-    Able to run a script test on TrafficLights using serial port with model_test1
-
-17-DEC-2017
-    able to pass helper class and run scripts
-
-25-Nov-2017
-  ScriptManager->read_configuration_file method will write defaults if file not exist
 
 
 

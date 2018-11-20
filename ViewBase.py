@@ -91,7 +91,11 @@ class ViewBaseAbstract(ABC):
         pass
 
     @abstractmethod
-    def setTabPortsListbox(self, lb):
+    def setTabPortsListbox_available(self, lb):
+        pass
+
+    @abstractmethod
+    def setTabPortsListbox_selected(self, lb):
         pass
 
     #### Plugins Tab
@@ -104,7 +108,11 @@ class ViewBaseAbstract(ABC):
         pass
 
     @abstractmethod
-    def setTabPluginsListbox(self, lb):
+    def setTabPluginsListbox_available(self, lb):
+        pass
+
+    @abstractmethod
+    def setTabPluginsListbox_selected(self, lb):
         pass
 
     #### Project Settings Tab
@@ -185,7 +193,7 @@ class ViewBaseAbstract(ABC):
     def set_tab_notifications_test_email_button_call(self, method):
         pass
 
-    #text ---
+    #texting ---
     @abstractmethod
     def set_tab_notifications_cb_texting_enable(self, value):
         pass
@@ -228,6 +236,15 @@ class ViewBaseAbstract(ABC):
 
     @abstractmethod
     def set_tab_notifications_test_texting_button_call(self, method):
+        pass
+
+    #### passed tab
+    @abstractmethod
+    def set_tab_passed_list(self, lst):
+        pass
+
+    #### failed tab
+    def set_tab_failed_list(self, lst):
         pass
 
     #### misc -----
